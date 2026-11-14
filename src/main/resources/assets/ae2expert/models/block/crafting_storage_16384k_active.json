@@ -1,0 +1,144 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "base": "appliedenergistics2:blocks/crafting/storage_64k",
+    "particle": "appliedenergistics2:blocks/crafting/storage_64k",
+    "signal": "minecraft:blocks/hardened_clay_stained_cyan"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#base"
+        },
+        "south": {
+          "texture": "#base"
+        },
+        "east": {
+          "texture": "#base"
+        },
+        "west": {
+          "texture": "#base"
+        },
+        "up": {
+          "texture": "#base"
+        },
+        "down": {
+          "texture": "#base"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        10,
+        -0.02
+      ],
+      "to": [
+        10,
+        12,
+        -0.02
+      ],
+      "faces": {
+        "north": {
+          "texture": "#signal"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        10,
+        16.02
+      ],
+      "to": [
+        10,
+        12,
+        16.02
+      ],
+      "faces": {
+        "south": {
+          "texture": "#signal"
+        }
+      }
+    },
+    {
+      "from": [
+        -0.02,
+        9,
+        10
+      ],
+      "to": [
+        -0.02,
+        10,
+        12
+      ],
+      "faces": {
+        "west": {
+          "texture": "#signal"
+        }
+      }
+    },
+    {
+      "from": [
+        16.02,
+        9,
+        10
+      ],
+      "to": [
+        16.02,
+        10,
+        12
+      ],
+      "faces": {
+        "east": {
+          "texture": "#signal"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        -0.02,
+        10
+      ],
+      "to": [
+        10,
+        -0.02,
+        12
+      ],
+      "faces": {
+        "down": {
+          "texture": "#signal"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        16.02,
+        10
+      ],
+      "to": [
+        10,
+        16.02,
+        12
+      ],
+      "faces": {
+        "up": {
+          "texture": "#signal"
+        }
+      }
+    }
+  ]
+}

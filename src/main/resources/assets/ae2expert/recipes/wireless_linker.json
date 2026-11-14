@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " Q ",
+    " PM",
+    "I  "
+  ],
+  "key": {
+    "Q": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "P": {
+      "item": "appliedenergistics2:material",
+      "data": 23
+    },
+    "M": {
+      "item": "appliedenergistics2:memory_card"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "ae2expert:wireless_linker"
+  }
+}

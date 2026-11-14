@@ -37,6 +37,10 @@ public class ExpertTransformer implements IClassTransformer {
         if (basicClass == null) {
             return null;
         }
+        if ("appeng.me.cluster.implementations.CraftingCPUCluster".equals(transformedName))
+            return CraftingCpuTransformer.transform(basicClass);
+        if ("appeng.me.cache.CraftingGridCache".equals(transformedName))
+            return CraftingCpuTransformer.transformCache(basicClass);
         try {
             if (GRID_NODE.equals(transformedName)) {
                 return this.patchGridNode(basicClass);

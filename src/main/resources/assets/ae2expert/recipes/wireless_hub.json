@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RPR",
+    "CMC",
+    "RPR"
+  ],
+  "key": {
+    "R": {
+      "item": "ae2expert:wireless_relay_32"
+    },
+    "P": {
+      "item": "appliedenergistics2:material",
+      "data": 24
+    },
+    "C": {
+      "item": "ae2expert:cable_256"
+    },
+    "M": {
+      "item": "appliedenergistics2:controller"
+    }
+  },
+  "result": {
+    "item": "ae2expert:wireless_hub"
+  }
+}

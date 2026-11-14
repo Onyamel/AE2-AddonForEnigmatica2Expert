@@ -210,13 +210,18 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
             ItemStack input = table.getStackInSlot(i);
             if (input.isEmpty()) continue;
             int remaining = input.getCount();
-            for (int slot = 0; slot < slots && remaining > 0; slot++) {
+            // Фактический insertItemStacked сначала дополняет стаки, затем занимает пустые слоты.
+            for (int pass = 0; pass < 2 && remaining > 0; pass++) for (int slot = 0; slot < slots && remaining > 0; slot++) {
                 ItemStack current = reserved[slot];
+                if ((pass == 0) == current.isEmpty()) continue;
                 if (!current.isEmpty() && !ItemHandlerHelper.canItemStacksStack(current, input)) continue;
                 ItemStack probe = input.copy();
-                int capacity = Math.min(input.getMaxStackSize(), target.getSlotLimit(slot));
-                probe.setCount(capacity);
-                int allowed = capacity - target.insertItem(slot, probe, true).getCount() - accepted[slot];
+                // Большие слоты (например, хранилища) могут принимать несколько обычных стаков.
+                // Реальное ограничение определяет симуляция самого приёмника.
+                int capacity = target.getSlotLimit(slot);
+                int requested = (int) Math.min(capacity, (long) accepted[slot] + remaining);
+                probe.setCount(requested);
+                int allowed = requested - target.insertItem(slot, probe, true).getCount() - accepted[slot];
                 int count = Math.min(remaining, Math.max(0, allowed));
                 if (count <= 0) continue;
                 accepted[slot] += count;

@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 @Mod(modid="ae2expert_runtime_checks", name="AE2 Expert runtime checks", version="1", dependencies="required-after:ae2expert")
 public final class RuntimeIntegrationChecks {
     private boolean started;
+    private int wirelessGuiTicks;
     private volatile boolean finished;
     private int visualTicks;
     private int clientTicks, ticks, tierIndex, passed, failed;
@@ -49,9 +50,19 @@ public final class RuntimeIntegrationChecks {
     private ItemStack craftingOutput;
     private final BlockPos origin = new BlockPos(16, 90, 16);
 
-    @Mod.EventHandler public void init(FMLInitializationEvent event) { MinecraftForge.EVENT_BUS.register(this); }
+    @Mod.EventHandler public void init(FMLInitializationEvent event) { RuntimeIntegrationChecksLogic.register(); MinecraftForge.EVENT_BUS.register(this); }
+
+    private static boolean channelWorld() {
+        return Boolean.getBoolean("ae2expert.channelWorld")
+                || new java.io.File(".ae2expert-channel-world").isFile();
+    }
 
     @SubscribeEvent public void client(TickEvent.ClientTickEvent event) throws Exception {
+        if (event.phase == TickEvent.Phase.END && started && !channelWorld()
+                && new java.io.File(Minecraft.getMinecraft().gameDir, ".ae2expert-runtime-check").isFile()
+                && Minecraft.getMinecraft().player != null
+                && Minecraft.getMinecraft().player.openContainer instanceof com.e2e.ae2expert.wireless.WirelessContainer
+                && ++wirelessGuiTicks == 20) RuntimeIntegrationChecksWireless.verifyClient();
         if(event.phase==TickEvent.Phase.END && finished && ++visualTicks==100 && failed==0) {
             RuntimeIntegrationChecksVisual.client();
         }
@@ -64,13 +75,15 @@ public final class RuntimeIntegrationChecks {
             Minecraft mc=Minecraft.getMinecraft();
             System.out.println("[AE2ExpertFeatures] SCREENSHOT "+net.minecraft.util.ScreenShotHelper.saveScreenshot(mc.gameDir,mc.displayWidth,mc.displayHeight,mc.getFramebuffer()).getUnformattedText());
         }
+        if(event.phase==TickEvent.Phase.END&&finished&&visualTicks==220&&Boolean.getBoolean("ae2expert.autoexit"))
+            Minecraft.getMinecraft().shutdown();
         if (event.phase != TickEvent.Phase.END || started || ++clientTicks < 100) return;
         Minecraft mc = Minecraft.getMinecraft();
         if (!new java.io.File(mc.gameDir, ".ae2expert-runtime-check").isFile()) return;
         started = true;
         WorldSettings settings = new WorldSettings(12345, GameType.CREATIVE, false, false, WorldType.FLAT);
         settings.enableCommands();
-        mc.launchIntegratedServer("ae2expert-smoke", "AE2 Expert runtime checks", settings);
+        mc.launchIntegratedServer(channelWorld() ? "ae2expert-channel-bench" : System.getProperty("ae2expert.testworld","ae2expert-smoke"), channelWorld() ? "AE2 — тест каналов" : "AE2 Expert runtime checks", settings);
     }
 
     @SubscribeEvent public void tick(TickEvent.WorldTickEvent event) {
@@ -79,17 +92,27 @@ public final class RuntimeIntegrationChecks {
         if (event.world.getMinecraftServer().getPlayerList().getPlayers().isEmpty()) return;
         WorldServer world = (WorldServer) event.world;
         EntityPlayerMP player = world.getMinecraftServer().getPlayerList().getPlayers().get(0);
+        if (channelWorld()) {
+            RuntimeIntegrationChecksChannelWorld.tick(world, player, ticks++);
+            return;
+        }
         try {
             if (ticks++ == 0) {
                 System.out.println("[AE2ExpertRuntime] START");
                 basicChecks();
+                RuntimeIntegrationChecksCpu.setup(world,player);
+                RuntimeIntegrationChecksWireless.setup(world,player);
                 for(int x=15;x<=48;x++)for(int z=15;z<=38;z++)for(int y=90;y<=91;y++)world.setBlockToAir(new BlockPos(x,y,z));
                 for(int x=0;x<=12;x++)for(int z=-2;z<=5;z++)world.setBlockToAir(new BlockPos(x,82,z));
                 fixtures(world, player);
                 placementChecks(world,player);
                 RuntimeIntegrationChecksFeatures.setup(world,player);
+                RuntimeIntegrationChecksLogic.setup(world,player);
                 network(world, player, 32);
             }
+            RuntimeIntegrationChecksLogic.tick(world,ticks);
+            RuntimeIntegrationChecksCpu.tick(world,player,ticks);
+            RuntimeIntegrationChecksWireless.tick(world,ticks);
             if (ticks == 120) craftingChecks(world);
             if (ticks > 0 && ticks % 200 == 0) {
                 int capacity = new int[] {32,64,128,256}[tierIndex];
@@ -138,7 +161,7 @@ public final class RuntimeIntegrationChecks {
 
     private void basicChecks() {
         long items = ForgeRegistries.ITEMS.getKeys().stream().filter(key -> key.getNamespace().equals("ae2expert")).count();
-        check(items == 71, "Зарегистрирован 71 предмет/блок: " + items);
+        check(items == 94, "Зарегистрирован 94 предмета и блока: " + items);
         int recipes = 0;
         for (IRecipe recipe : ForgeRegistries.RECIPES.getValuesCollection()) {
             if (recipe.getRegistryName() == null || !recipe.getRegistryName().getNamespace().equals("ae2expert")) continue;
@@ -149,7 +172,7 @@ public final class RuntimeIntegrationChecks {
                     check(ingredient.getMatchingStacks().length > 0, "Ингредиент " + recipe.getRegistryName());
             }
         }
-        check(recipes == 71, "Загружен 71 рецепт: " + recipes);
+        check(recipes == 94, "Загружен 94 рецепта: " + recipes);
         IStorageChannel<IAEItemStack> itemChannel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
         ItemStack itemCell = new ItemStack(ModItems.itemCells.get(CellTier.M512));
         ICellInventoryHandler<IAEItemStack> inventory = AEApi.instance().registries().cell().getCellInventory(itemCell, null, itemChannel);

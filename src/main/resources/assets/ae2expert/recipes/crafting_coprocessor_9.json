@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP",
+    "PPP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "appliedenergistics2:crafting_accelerator"
+    }
+  },
+  "result": {
+    "item": "ae2expert:crafting_coprocessor_9"
+  }
+}

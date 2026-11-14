@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "formed=false,powered=false": {
+      "model": "ae2expert:crafting_storage_16384k"
+    },
+    "formed=false,powered=true": {
+      "model": "ae2expert:crafting_storage_16384k_active"
+    },
+    "formed=true,powered=false": {
+      "model": "ae2expert:crafting_storage_16384k"
+    },
+    "formed=true,powered=true": {
+      "model": "ae2expert:crafting_storage_16384k_active"
+    }
+  }
+}

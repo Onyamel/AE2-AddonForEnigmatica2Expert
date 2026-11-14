@@ -8,10 +8,45 @@ final class FeatureTransformers {
     static byte[] transform(String name, byte[] original) {
         boolean dense=name.equals("appeng.parts.networking.PartDenseCable");
         boolean container=name.equals("appeng.container.implementations.ContainerUpgradeable");
-        if(!dense&&!container)return original;
+        boolean workbench=name.equals("appeng.container.implementations.ContainerCellWorkbench");
+        boolean assembler=name.equals("appeng.tile.crafting.TileMolecularAssembler");
+        if(!dense&&!container&&!workbench&&!assembler)return original;
         ClassNode type=new ClassNode();new ClassReader(original).accept(type,0);
         int changed=0;
         for(MethodNode method:type.methods) {
+            if (assembler && method.name.equals("updateSleepiness") && method.desc.equals("()V")) {
+                for (AbstractInsnNode instruction : method.instructions.toArray()) {
+                    if (!(instruction instanceof MethodInsnNode)) continue;
+                    MethodInsnNode call = (MethodInsnNode) instruction;
+                    if (call.owner.equals("appeng/api/networking/ticking/ITickManager") && call.name.equals("sleepDevice")
+                            && call.desc.equals("(Lappeng/api/networking/IGridNode;)Z")) {
+                        method.instructions.set(call, new MethodInsnNode(Opcodes.INVOKESTATIC,
+                                "com/e2e/ae2expert/assembler/TileExpertAssembler", "sleepUnlessQueued",
+                                "(Lappeng/api/networking/ticking/ITickManager;Lappeng/api/networking/IGridNode;)Z", false));
+                        changed++;
+                    }
+                }
+            }
+            if(workbench&&method.name.equals("partition")&&method.desc.equals("()V")) {
+                LabelNode vanilla=new LabelNode();InsnList hook=new InsnList();
+                hook.add(new VarInsnNode(Opcodes.ALOAD,0));
+                hook.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL,type.name,"getUpgradeable",
+                        "()Lappeng/api/implementations/IUpgradeableHost;",false));
+                hook.add(new MethodInsnNode(Opcodes.INVOKESTATIC,"com/e2e/ae2expert/core/CellWorkbenchHook",
+                        "partition","(Lappeng/api/implementations/IUpgradeableHost;)Z",false));
+                hook.add(new JumpInsnNode(Opcodes.IFEQ,vanilla));
+                hook.add(new VarInsnNode(Opcodes.ALOAD,0));
+                // Имя метода Minecraft различается в dev и SRG; ищем существующий вызов.
+                String sync="detectAndSendChanges";
+                for(AbstractInsnNode instruction:method.instructions.toArray())if(instruction instanceof MethodInsnNode) {
+                    MethodInsnNode call=(MethodInsnNode)instruction;
+                    if(call.desc.equals("()V")&&(call.name.equals("func_75142_b")||call.name.equals("detectAndSendChanges")))sync=call.name;
+                }
+                hook.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL,type.name,sync,"()V",false));
+                hook.add(new InsnNode(Opcodes.RETURN));
+                hook.add(vanilla);hook.add(new FrameNode(Opcodes.F_SAME,0,null,0,null));
+                method.instructions.insert(hook);changed++;
+            }
             if(dense&&method.name.equals("isDense")&&method.desc.equals("(Lappeng/api/util/AEPartLocation;)Z")) {
                 // У прикреплённых частей появляется INTERNAL: у него нет EnumFacing и соседнего блока.
                 LabelNode external=new LabelNode();InsnList guard=new InsnList();

@@ -22,7 +22,8 @@ final class VisualRegressionChecks {
                 "appeng.integration.modules.waila.part.ChannelWailaDataProvider",
                 "appeng.integration.modules.theoneprobe.part.ChannelInfoProvider",
                 "appeng.parts.networking.PartDenseCable",
-                "appeng.container.implementations.ContainerUpgradeable")) {
+                "appeng.container.implementations.ContainerUpgradeable",
+                "appeng.container.implementations.ContainerCellWorkbench")) {
             byte[] original = bytes(name), patched = transformer.transform(name,name,original);
             check(!Arrays.equals(original,patched), "Применён визуальный патч " + name);
             ClassNode node = new ClassNode(); new ClassReader(patched).accept(node,0);

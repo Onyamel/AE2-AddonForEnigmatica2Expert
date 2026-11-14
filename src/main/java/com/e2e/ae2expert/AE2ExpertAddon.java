@@ -14,6 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import com.e2e.ae2expert.assembler.AssemblerRegistry;
+import com.e2e.ae2expert.crafting.CpuRegistry;
 import com.e2e.ae2expert.machine.MachineRegistry;
 import com.e2e.ae2expert.interfacepkg.InterfaceRegistry;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -26,12 +27,12 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
         version = AE2ExpertAddon.VERSION,
         dependencies = "required-after:appliedenergistics2;required-after:ic2;required-after:redstoneflux;after:extracells;after:mekanism",
         acceptedMinecraftVersions = "[1.12,1.13)",
-        acceptableRemoteVersions = "[1.2.0]")
+        acceptableRemoteVersions = "[2.0.0]")
 public class AE2ExpertAddon {
 
     public static final String MODID = "ae2expert";
     public static final String NAME = "AE2 Expert Addon";
-    public static final String VERSION = "1.2.0";
+    public static final String VERSION = "2.0.0";
 
     @Mod.Instance(MODID)
     public static AE2ExpertAddon instance;
@@ -43,6 +44,10 @@ public class AE2ExpertAddon {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         AssemblerRegistry.registerTileEntities();
+        CpuRegistry.registerTiles();
+        net.minecraftforge.fml.common.event.FMLInterModComms.sendMessage(
+                "carryon", "blacklistBlock", CpuRegistry.RACK.getRegistryName().toString());
+        com.e2e.ae2expert.wireless.WirelessRegistry.registerTiles();
         MachineRegistry.registerTiles();
         InterfaceRegistry.registerTiles();
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler());
@@ -66,6 +71,8 @@ public class AE2ExpertAddon {
         @SubscribeEvent
         public static void onRegisterBlocks(RegistryEvent.Register<Block> event) {
             AssemblerRegistry.registerBlocks(event);
+            CpuRegistry.registerBlocks(event);
+            com.e2e.ae2expert.wireless.WirelessRegistry.registerBlocks(event);
             MachineRegistry.registerBlocks(event);
             InterfaceRegistry.registerBlocks(event);
         }
@@ -75,6 +82,8 @@ public class AE2ExpertAddon {
             ModItems.createItems();
             ModItems.registerAll(event.getRegistry());
             AssemblerRegistry.registerItems(event);
+            CpuRegistry.registerItems(event);
+            com.e2e.ae2expert.wireless.WirelessRegistry.registerItems(event);
             MachineRegistry.registerItems(event);
             InterfaceRegistry.registerItems(event);
         }

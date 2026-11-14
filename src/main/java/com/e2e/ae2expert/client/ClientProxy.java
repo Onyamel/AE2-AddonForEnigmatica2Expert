@@ -25,6 +25,11 @@ public class ClientProxy extends CommonProxy {
         if (id == 1 && tile instanceof com.e2e.ae2expert.interfacepkg.TileExpertInterface)
             return new GuiExpertInterface(new com.e2e.ae2expert.interfacepkg.ContainerExpertInterface(player,
                     (com.e2e.ae2expert.interfacepkg.TileExpertInterface) tile));
+        if (id == 2 && tile instanceof com.e2e.ae2expert.crafting.TileCpuRack)
+            return new GuiCpuRack(new com.e2e.ae2expert.crafting.ContainerCpuRack(player, (com.e2e.ae2expert.crafting.TileCpuRack) tile));
+        if (id == 3 && tile instanceof com.e2e.ae2expert.wireless.WirelessTile)
+            return new GuiWirelessHub(new com.e2e.ae2expert.wireless.WirelessContainer(player,
+                    (com.e2e.ae2expert.wireless.WirelessTile) tile));
         return null;
     }
 
@@ -38,6 +43,7 @@ public class ClientProxy extends CommonProxy {
     @Override
     public void init(FMLInitializationEvent event) {
         super.init(event);
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new WirelessOverlay());
         java.util.List<Block> blocks=new java.util.ArrayList<>();
         blocks.addAll(AssemblerRegistry.BLOCKS.values());
         blocks.addAll(com.e2e.ae2expert.interfacepkg.InterfaceRegistry.BLOCKS);
@@ -57,6 +63,19 @@ public class ClientProxy extends CommonProxy {
         super.postInit(event);
     }
 
+    @Override public void receiveWirelessList(com.e2e.ae2expert.wireless.WirelessPackets.ListMessage message) {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+        mc.addScheduledTask(() -> {
+            if (mc.player != null && mc.player.openContainer instanceof com.e2e.ae2expert.wireless.WirelessContainer
+                    && mc.player.openContainer.windowId == message.window) {
+                com.e2e.ae2expert.wireless.WirelessContainer hub =
+                        (com.e2e.ae2expert.wireless.WirelessContainer) mc.player.openContainer;
+                hub.entries = message.links;
+                WirelessOverlay.reconcile(hub.position(), message.links);
+            }
+        });
+    }
+
     /** Registers a simple inventory model for every item and block item of the addon. */
     public static void registerItemModels(ModelRegistryEvent event) {
         for (Item item : ModItems.all()) {
@@ -67,6 +86,11 @@ public class ClientProxy extends CommonProxy {
                     new net.minecraft.client.renderer.block.model.ModelResourceLocation(item.getRegistryName(), "inventory"));
         }
 
+        for (Block block : com.e2e.ae2expert.wireless.WirelessRegistry.BLOCKS) registerBlockItemModel(block);
+        Item linker = com.e2e.ae2expert.wireless.WirelessRegistry.LINKER;
+        ModelLoader.setCustomModelResourceLocation(linker, 0,
+                new net.minecraft.client.renderer.block.model.ModelResourceLocation(linker.getRegistryName(), "inventory"));
+        for (Block block : com.e2e.ae2expert.crafting.CpuRegistry.BLOCKS) registerBlockItemModel(block);
         for (BlockExpertAssembler block : AssemblerRegistry.BLOCKS.values()) {
             registerBlockItemModel(block);
         }

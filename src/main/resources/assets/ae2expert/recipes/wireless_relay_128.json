@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GAG",
+    "CPC",
+    "GAG"
+  ],
+  "key": {
+    "G": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "A": {
+      "item": "appliedenergistics2:material",
+      "data": 24
+    },
+    "C": {
+      "item": "ae2expert:cable_128"
+    },
+    "P": {
+      "item": "ae2expert:wireless_relay_64"
+    }
+  },
+  "result": {
+    "item": "ae2expert:wireless_relay_128"
+  }
+}

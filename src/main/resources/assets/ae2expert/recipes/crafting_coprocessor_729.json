@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP",
+    "PPP",
+    "PPP"
+  ],
+  "key": {
+    "P": {
+      "item": "ae2expert:crafting_coprocessor_81"
+    }
+  },
+  "result": {
+    "item": "ae2expert:crafting_coprocessor_729"
+  }
+}

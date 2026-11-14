@@ -1,0 +1,27 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "QGQ",
+    "SCS",
+    "QGQ"
+  ],
+  "key": {
+    "Q": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "G": {
+      "item": "appliedenergistics2:material",
+      "data": 23
+    },
+    "S": {
+      "item": "ae2expert:cell_32m",
+      "type": "ae2expert:empty_cell"
+    },
+    "C": {
+      "item": "ae2expert:crafting_storage_16384k"
+    }
+  },
+  "result": {
+    "item": "ae2expert:crafting_storage_32768k"
+  }
+}

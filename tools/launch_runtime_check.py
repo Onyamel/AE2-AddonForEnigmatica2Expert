@@ -20,6 +20,13 @@ RUN.mkdir(exist_ok=True)
 (RUN/'.ae2expert-runtime-check').write_text('Отдельный профиль для интеграционных проверок',encoding='utf-8')
 for name in ['mods','config','scripts','resources','structures']:
  if (SOURCE/name).is_dir(): shutil.copytree(SOURCE/name,RUN/name,dirs_exist_ok=True)
+# Keep the isolated profile on Minecraft's automatic LAN port selection.
+lan_config = RUN / 'config' / 'Universal Tweaks - Tweaks.cfg'
+if lan_config.is_file():
+    config = lan_config.read_bytes()
+    old = b'B:"LAN Server Properties"=true'
+    if old in config:
+        lan_config.write_bytes(config.replace(old, b'B:"LAN Server Properties"=false'))
 version=re.search(r"version\s*=\s*'([^']+)'",(ROOT/'build.gradle').read_text()).group(1)
 retired=RUN/'previous-addon'
 retired.mkdir(exist_ok=True)

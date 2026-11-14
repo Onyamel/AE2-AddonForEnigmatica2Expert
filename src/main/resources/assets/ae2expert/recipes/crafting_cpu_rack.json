@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GUG",
+    "ACA",
+    "GUG"
+  ],
+  "key": {
+    "G": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "U": {
+      "item": "appliedenergistics2:crafting_unit"
+    },
+    "A": {
+      "item": "appliedenergistics2:crafting_accelerator"
+    },
+    "C": {
+      "item": "ae2expert:crafting_storage_128k"
+    }
+  },
+  "result": {
+    "item": "ae2expert:crafting_cpu_rack"
+  }
+}

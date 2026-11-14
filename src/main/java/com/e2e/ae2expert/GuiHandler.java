@@ -17,6 +17,14 @@ public class GuiHandler implements IGuiHandler {
         if (id == 0 && (tile instanceof TileFluixChamber || tile instanceof TileRfEuConverter)) return new ContainerMachine(player, tile);
         if (id == 1 && tile instanceof TileExpertInterface && ((TileExpertInterface) tile).canUse(player))
             return new ContainerExpertInterface(player, (TileExpertInterface) tile);
+        if (id == 2 && tile instanceof com.e2e.ae2expert.crafting.TileCpuRack) {
+            com.e2e.ae2expert.crafting.TileCpuRack rack = (com.e2e.ae2expert.crafting.TileCpuRack) tile;
+            if (rack.canUse(player)) return new com.e2e.ae2expert.crafting.ContainerCpuRack(player, rack);
+        }
+        if (id == 3 && tile instanceof com.e2e.ae2expert.wireless.WirelessTile) {
+            com.e2e.ae2expert.wireless.WirelessTile hub = (com.e2e.ae2expert.wireless.WirelessTile) tile;
+            if (hub.mayOpen(player)) return new com.e2e.ae2expert.wireless.WirelessContainer(player, hub);
+        }
         return null;
     }
     @Override public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {

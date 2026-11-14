@@ -31,7 +31,7 @@ python tools/validate_resources.py
 .\gradlew.bat build --console plain
 ```
 
-The main output is `build/libs/ae2expert-1.3.0.jar`. Do not install `*-runtime-checks.jar` in a normal instance. Use `.\build.ps1 -Offline` when dependencies are cached. `-JavaHome` selects a JDK explicitly; `-GradleHome` selects an existing Gradle 4.10.3 installation.
+The main output is `build/libs/ae2expert-2.0.0.jar`. Do not install `*-runtime-checks.jar` in a normal instance. Use `.\build.ps1 -Offline` when dependencies are cached. `-JavaHome` selects a JDK explicitly; `-GradleHome` selects an existing Gradle 4.10.3 installation.
 
 ## Linux and macOS
 
@@ -49,7 +49,7 @@ These build commands are portable but have not been tested separately on these p
 
 The nine required jars and official project pages are listed in [libs/README.md](../libs/README.md). They are not redistributed. The setup script copies only the listed files from your installed E2E instance, then stages AE2 and ExtraCells in a local Maven repository. It does not change the instance. Do not rename different mod versions to match expected filenames. `dependencies.json` records checksums; differing files are reported.
 
-`gradlew build` runs 114 regression checks. The resource validator checks JSON, internal resource references, 71 recipes and matching translation keys. Resource generation tools are in `tools`; the source archive already includes PNG assets. Review regenerated changes before replacing hand-maintained translations.
+`gradlew build` runs 115 regression checks. The resource validator checks JSON, internal resource references, 94 recipes and matching translation keys. Resource generation tools are in `tools`; the source archive already includes PNG assets. Review regenerated changes before replacing hand-maintained translations.
 
 Compilation uses Forge **1.12.2-14.23.5.2847**, since 2860 has no legacy userdev artifact for ForgeGradle 2.3. AE2/ExtraCells dependencies are remapped from SRG to MCP. Merely placing jars in `libs` does not replace initial Minecraft environment setup. Consult the Gradle log if remapping or a legacy repository fails.
 
@@ -62,4 +62,4 @@ python tools/launch_runtime_check.py --prism 'D:\PrismData' --instance 'D:\Minec
 
 The Prism data directory must contain `libraries`, `assets` and `meta`. Install and launch the base instance through Prism first. The script copies mods and settings to `run-release`, without copying user worlds, and launches the local `AE2ExpertTest` profile. Tests use their own world. This can take several minutes and requires enough RAM for E2E. Never distribute the runtime-checks jar as the gameplay release.
 
-For packaging, run `python tools/make_release.py` after a successful build. Output is written to `dist/github-1.3.0`.
+For packaging, run `python tools/make_release.py` after a successful build. Output is written to `dist/github-2.0.0`.

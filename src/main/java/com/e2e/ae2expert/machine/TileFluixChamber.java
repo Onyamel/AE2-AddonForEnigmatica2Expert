@@ -10,6 +10,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.IItemHandler;
 
 /**
  * Fluix crystal chamber: turns one charged certus quartz, one redstone and one nether quartz into a
@@ -44,6 +45,20 @@ public class TileFluixChamber extends TileEntity implements ITickable, cofh.reds
     };
 
     private final MachineEnergy energy = new MachineEnergy(ENERGY_CAPACITY, 1000, 0, this::markDirty);
+
+    // GUI и сама машина используют исходный инвентарь; трубы извлекают только результат.
+    private final IItemHandler automation = new IItemHandler() {
+        @Override public int getSlots() { return inventory.getSlots(); }
+        @Override public ItemStack getStackInSlot(int slot) { return inventory.getStackInSlot(slot); }
+        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return inventory.insertItem(slot, stack, simulate);
+        }
+        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return slot == SLOT_OUTPUT ? inventory.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+        }
+        @Override public int getSlotLimit(int slot) { return inventory.getSlotLimit(slot); }
+        @Override public boolean isItemValid(int slot, ItemStack stack) { return inventory.isItemValid(slot, stack); }
+    };
 
     private int progress;
 
@@ -154,7 +169,7 @@ public class TileFluixChamber extends TileEntity implements ITickable, cofh.reds
     @Override
     public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
         if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.inventory);
+            return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.automation);
         }
         if (capability == CapabilityEnergy.ENERGY) {
             return CapabilityEnergy.ENERGY.cast(this.energy);

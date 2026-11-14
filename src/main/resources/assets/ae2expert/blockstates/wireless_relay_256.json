@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "ae2expert:wireless_relay_256"
+    }
+  }
+}

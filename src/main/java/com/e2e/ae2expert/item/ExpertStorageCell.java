@@ -47,8 +47,10 @@ public abstract class ExpertStorageCell<T extends IAEStack<T>> extends AEBaseIte
     @Override @SuppressWarnings("unchecked")
     public <S extends IAEStack<S>> ICellInventoryHandler<S> getCellInventory(ItemStack stack, ISaveProvider provider, IStorageChannel<S> channel) {
         if (!isCell(stack) || channel != getChannel()) return null;
-        return new BasicCellInventoryHandler<>(new LongCellInventory<>(stack, provider, channel, bytes, types, typeBytes, drain), channel);
+        return configureHandler(new BasicCellInventoryHandler<>(new LongCellInventory<>(stack, provider, channel, bytes, types, typeBytes, drain), channel), stack, channel);
     }
+    protected <S extends IAEStack<S>> BasicCellInventoryHandler<S> configureHandler(
+            BasicCellInventoryHandler<S> handler, ItemStack stack, IStorageChannel<S> channel) { return handler; }
     @Override public boolean isEditable(ItemStack stack) { return true; }
     @Override public IItemHandler getConfigInventory(ItemStack stack) { return new CellConfig(stack); }
     @Override public IItemHandler getUpgradesInventory(ItemStack stack) { return new CellUpgrades(stack, 2); }
@@ -66,6 +68,6 @@ public abstract class ExpertStorageCell<T extends IAEStack<T>> extends AEBaseIte
         lines.add(I18n.translateToLocal("ae2expert.cell.tooltip.empty_upgrade"));
         LongCellInventory<T> inspected = new LongCellInventory<>(stack, null, getChannel(), bytes, types, typeBytes, drain);
         if (inspected.hasInvalidEntries()) lines.add(I18n.translateToLocal("ae2expert.cell.tooltip.invalid"));
-        AEApi.instance().client().addCellInformation(new BasicCellInventoryHandler<>(inspected, getChannel()), lines);
+        AEApi.instance().client().addCellInformation(configureHandler(new BasicCellInventoryHandler<>(inspected, getChannel()), stack, getChannel()), lines);
     }
 }

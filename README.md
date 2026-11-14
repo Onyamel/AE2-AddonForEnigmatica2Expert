@@ -2,15 +2,15 @@
 
 **English** | [Русский](README-RU.md)
 
-An unofficial Applied Energistics 2 expansion for **Enigmatica 2: Expert 1.93a**, Minecraft **1.12.2**. Version **1.3.0** adds 71 items and blocks, with 71 crafting recipes designed for E2E progression. In-game language: **English and Russian**, selected through Minecraft's language settings.
+An unofficial Applied Energistics 2 expansion for **Enigmatica 2: Expert 1.93a**, Minecraft **1.12.2**. Version **2.0.0** adds 94 items and blocks, with 94 crafting recipes designed for E2E progression. In-game language: **English and Russian**, selected through Minecraft's language settings.
 
 ## Installation
 
-1. Download `ae2expert-1.3.0.jar` from **Releases**.
+1. Download `ae2expert-2.0.0.jar` from **Releases**.
 2. Close Minecraft and back up your world.
 3. Open your instance's Minecraft folder in Prism Launcher, then open `mods`.
 4. Replace the previous addon jar. Keep only one version installed.
-5. Install version **1.3.0** on the server and every client.
+5. Install version **2.0.0** on the server and every client.
 
 Players do not need the source archive, JDK, Gradle, a separate resource pack, or `runtime-checks.jar`. The required mods are already part of the tested E2E setup. See [dependencies](libs/README.md) for exact versions.
 
@@ -29,15 +29,19 @@ Players do not need the source archive, JDK, Gradle, a separate resource pack, o
 
 Gas cells use ExtraCells and Mekanism. The converter supports Forge Energy, classic RF and IC2 EnergyNet, with up to 256 EU of conversion input per tick.
 
-## Version 1.3.0
+## Version 2.0.0
 
-This release contains the logic fixes previously prepared as 1.2.1, now published under version 1.3.0, together with bilingual documentation. It fixes interface recovery items being sent to the wrong destination, unsafe reflection/model initialization, damaged cell NBT handling, energy rounding and container input handling. Cable recoloring skips unsupported vertex formats safely.
+Crafting storage from 128k to 512 MiB, ×9 / ×81 / ×729 coprocessors, and a rack with 18 slots of up to 64 modules each. Sneak and right-click the rack to edit its modules. Coprocessors raise the operation budget of one job. Concurrent independent orders require separate CPUs.
 
-See the [changelog](CHANGELOG-1.3.0.md) and [audit and validation report](docs/AUDIT-1.3.0.md). Earlier features include native nine-slot bus filters, dense-cable attachments, JEI recipes, muted colors and full channel telemetry.
+[Changelog](CHANGELOG-2.0.0.md) · [Design](docs/CRAFTING-CPU-DESIGN.md) · [Validation](docs/VALIDATION-2.0.0.md)
 
 ![Fluix Chamber recipe in JEI](docs/images/fluix-chamber-jei.png)
 
 ![256-channel network visualizer](docs/images/network-256.png)
+
+## Wireless links
+
+One hub supports up to 128 remote relays with 32, 64, 128 or 256 channels per relay. A linker pairs relays with the hub. The hub UI shows and renames pairings and toggles several translucent connection lines. [Wireless link guide](docs/WIRELESS-LINKS.md).
 
 ## Usage and limitations
 

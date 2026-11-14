@@ -9,6 +9,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
  * Server side proxy. Holds everything that is safe on a dedicated server.
  */
 public class CommonProxy {
+    public void receiveWirelessList(com.e2e.ae2expert.wireless.WirelessPackets.ListMessage message) { }
+
 
     public Object createGui(int id, net.minecraft.entity.player.EntityPlayer player, net.minecraft.tileentity.TileEntity tile) {
         return null;
