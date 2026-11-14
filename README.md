@@ -26,6 +26,20 @@ Players do not need the source archive, JDK, Gradle, a separate resource pack, o
 | Cables | 32 / 64 / 128 / 256 channels; networks above eight channels need a controller |
 | Fluix Crystal Chamber | Charged Certus Quartz + Redstone + Nether Quartz → 2 Fluix Crystals in 100 ticks, using 4000 RF; JEI/HEI recipe integration |
 | RF ↔ EU Converter | Switchable direction, base rate 4 RF/EU, 10% loss in each direction |
+| Crafting storage | 13 new tiers: 128k, 256k, 512k, 1M, 2M, 4M, 8M, 16M, 32M, 64M, 128M, 256M and 512M. Extends the stock 1k–64k line. |
+| Crafting coprocessors | ×9, ×81 and ×729. They increase the operation budget within one AE2 crafting job. |
+| Crafting CPU Rack | 18 slots for stock or addon storage blocks and coprocessors, up to 64 matching blocks per slot and 576 GiB of memory. Sneak-right-click to configure. Editing is locked while the CPU is busy or returning items. |
+| Wireless ME network | One hub, four relays (32, 64, 128 and 256 channels) and an ME Network Linker. Up to 128 pairings and 256 channels in total per hub. |
+| Wireless management | Connection count on hover, named links, online status and individually selectable translucent lines. Several lines can be visible at once. |
+
+### Integration and reliability
+
+- Wireless links use the same AE2 network as the hub. Both ends must be loaded in the same dimension. Pairings and names persist. Line visibility is local to each player for the current session.
+- Dense cables accept crafting terminals, interfaces and buses. Tooltips and the AE2 Stuff visualizer report full counts up to 256. Cable colors identify tiers. Assemblers retain their transparent casings and activity effects, with tier markings.
+- Fluid and gas cell filters work in the Cell Workbench. Gas cells use ExtraCells and Mekanism. Damaged storage records are retained in NBT and flagged in the tooltip so a cell upgrade cannot discard them.
+- Processing ingredients and stock recovery are kept separate in ME interfaces. Pending items survive reloads. Accelerated assembler queues preserve pending work, and the Fluix Crystal Chamber output supports automated extraction.
+- The rack opens on Shift + right-click with either an empty hand or an item. Carry On is blocked from picking it up. Active racks still offer the normal AE2 job screen on right-click.
+- Recipes follow E2E progression. JEI/HEI includes the chamber recipe alongside the water method. Names, tooltips and menus are available in English and Russian.
 
 Gas cells use ExtraCells and Mekanism. The converter supports Forge Energy, classic RF and IC2 EnergyNet, with up to 256 EU of conversion input per tick.
 
