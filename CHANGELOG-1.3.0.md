@@ -10,7 +10,7 @@ This version replaces the prepared 1.2.1 version number; it is not an additional
 - Guard IC2 withdrawals by converter direction and prevent RF loss near a full EU buffer.
 - Validate container slot IDs, reset dragging on tab changes and protect hidden slots.
 - Skip recoloring unsupported vertex layouts; remove unused chamber matching code and diagnose missing gas-cell registration.
-- Review English in-game text and provide English/Russian README, build, publication, audit, release and licensing documentation.
+- Review English in-game text and provide English/Russian README, build, audit, release and licensing documentation.
 
 See [audit](docs/AUDIT-1.3.0.md) for findings, checks and limits.
 
@@ -24,6 +24,6 @@ See [audit](docs/AUDIT-1.3.0.md) for findings, checks and limits.
 - Списание IC2 ограничено направлением конвертера; устранена потеря RF у почти полного EU-буфера.
 - Проверка номеров слотов, сброс перетаскивания при смене вкладки, защита скрытых слотов.
 - Безопасный отказ от перекраски неизвестного формата вершин; удаление неиспользуемого кода камеры и диагностика отсутствующих газовых ячеек.
-- Проверены английские тексты игры; подготовлены README, инструкции сборки и публикации, аудит, описание релиза и уведомления о лицензиях на двух языках.
+- Проверены английские тексты игры; подготовлены README, инструкции сборки, аудит, описание релиза и уведомления о лицензиях на двух языках.
 
 Подробности: [аудит](docs/AUDIT-1.3.0-RU.md).

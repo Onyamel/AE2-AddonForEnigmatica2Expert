@@ -56,7 +56,6 @@ Cell upgrades require empty input cells with upgrade cards removed. Damaged entr
 ## Development and support
 
 - [Build from source](docs/BUILDING.md)
-- [Update a repository and publish with GitHub Desktop](docs/PUBLISHING-EN.md)
 - [Dependency versions](libs/README.md)
 - Report reproducible problems through **Issues**, including versions, reproduction steps and relevant logs with private data removed.
 

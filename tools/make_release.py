@@ -1,4 +1,4 @@
-"""Готовит чистые исходники, игровой релиз и комплект для первой публикации."""
+"""Готовит чистые исходники, игровой релиз и комплект для распространения."""
 from pathlib import Path
 import hashlib
 import json
@@ -76,9 +76,7 @@ def main():
     archive(OUT/RELEASE_NAME,[(p,p.relative_to(release).as_posix()) for p in release.rglob('*') if p.is_file()])
     shutil.copy2(jar,OUT/JAR_NAME)
     shutil.copy2(ROOT/'RELEASE_NOTES.md',OUT/'RELEASE_NOTES.md')
-    shutil.copy2(ROOT/'docs/PUBLISHING-RU.md',OUT/'КАК_ОПУБЛИКОВАТЬ.md')
     (OUT/'SHA256SUMS.txt').write_text(''.join(digest(OUT/name)+'  '+name+'\n' for name in [JAR_NAME,SOURCE_NAME,RELEASE_NAME]),encoding='utf-8')
-    shutil.copy2(ROOT/'docs/PUBLISHING-EN.md',OUT/'HOW_TO_PUBLISH.md')
     packname='ae2expert-'+VERSION+'-github-pack.zip'
     archive(OUT/packname,[(p,'ae2expert-github-'+VERSION+'/'+p.relative_to(OUT).as_posix()) for p in OUT.rglob('*') if p.is_file() and p.name!=packname])
     print('Пакет готов: '+str(OUT))
