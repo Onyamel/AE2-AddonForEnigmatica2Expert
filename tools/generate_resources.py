@@ -25,7 +25,7 @@ for prefix,component in [('cell_',material(37)),('fluid_cell_',material(56)),('g
         if n==0:
             recipe(prefix+tier,['GRG','RCR','PHP'],{'G':item('appliedenergistics2:quartz_glass'),'R':ore('dustRedstone'),'C':component,'P':ore('plateIron'),'H':casing},optional)
         else:
-            recipe(prefix+tier,['GPG','CBC','RHR'],{'G':item('appliedenergistics2:quartz_glass'),'P':ore('plateGold' if n<4 else 'plateIridium'),'C':item('ae2expert:'+prefix+tiers[n-1],empty=True),'B':material(23 if n<4 else 24),'R':material(8),'H':casing},optional)
+            recipe(prefix+tier,(['GPG','CBC','RHR'] if n<4 else ['G G','CBC','RHR']),{**({'P':ore('plateGold')} if n<4 else {}),'G':item('appliedenergistics2:quartz_glass'),'C':item('ae2expert:'+prefix+tiers[n-1],empty=True),'B':material(23 if n<4 else 24),'R':material(8),'H':casing},optional)
 recipe('cell_infinite',['CSC','SQS','CSC'],{'C':item('ae2expert:cell_512m',empty=True),'S':material(47),'Q':item('appliedenergistics2:controller')})
 for n,channels in enumerate([32,64,128,256]):
     prev=item('appliedenergistics2:part',76) if n==0 else item('ae2expert:cable_'+str(channels//2))

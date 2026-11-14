@@ -2,17 +2,13 @@
   "type": "forge:ore_shaped",
   "group": "ae2expert",
   "pattern": [
-    "GPG",
+    "G G",
     "CBC",
     "RHR"
   ],
   "key": {
     "G": {
       "item": "appliedenergistics2:quartz_glass"
-    },
-    "P": {
-      "type": "forge:ore_dict",
-      "ore": "plateIridium"
     },
     "C": {
       "item": "ae2expert:fluid_cell_128m",
