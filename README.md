@@ -49,10 +49,6 @@ Crafting storage from 128k to 512 MiB, ×9 / ×81 / ×729 coprocessors, and a ra
 
 [Changelog](CHANGELOG-2.0.0.md) · [Design](docs/CRAFTING-CPU-DESIGN.md) · [Validation](docs/VALIDATION-2.0.0.md)
 
-![Fluix Chamber recipe in JEI](docs/images/fluix-chamber-jei.png)
-
-![256-channel network visualizer](docs/images/network-256.png)
-
 ## Wireless links
 
 One hub supports up to 128 remote relays with 32, 64, 128 or 256 channels per relay. A linker pairs relays with the hub. The hub UI shows and renames pairings and toggles several translucent connection lines. [Wireless link guide](docs/WIRELESS-LINKS.md).
