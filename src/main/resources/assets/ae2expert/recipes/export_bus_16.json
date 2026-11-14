@@ -1,0 +1,29 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "PSP",
+    "SBS",
+    "PRP"
+  ],
+  "key": {
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateGold"
+    },
+    "S": {
+      "item": "appliedenergistics2:material",
+      "data": 30
+    },
+    "B": {
+      "item": "ae2expert:export_bus_8"
+    },
+    "R": {
+      "item": "appliedenergistics2:material",
+      "data": 23
+    }
+  },
+  "result": {
+    "item": "ae2expert:export_bus_16"
+  }
+}

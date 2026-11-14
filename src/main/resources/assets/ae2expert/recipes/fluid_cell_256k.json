@@ -1,0 +1,43 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "GPG",
+    "CBC",
+    "RHR"
+  ],
+  "key": {
+    "G": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateIridium"
+    },
+    "C": {
+      "item": "ae2expert:fluid_cell_128k",
+      "type": "ae2expert:empty_cell"
+    },
+    "B": {
+      "item": "appliedenergistics2:material",
+      "data": 24
+    },
+    "R": {
+      "item": "appliedenergistics2:material",
+      "data": 8
+    },
+    "H": {
+      "item": "extracells:storage.casing",
+      "data": 0
+    }
+  },
+  "result": {
+    "item": "ae2expert:fluid_cell_256k"
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "extracells"
+    }
+  ]
+}

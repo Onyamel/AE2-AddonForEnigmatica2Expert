@@ -1,0 +1,30 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "PRP",
+    "CBC",
+    "PRP"
+  ],
+  "key": {
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateIron"
+    },
+    "R": {
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
+    },
+    "C": {
+      "item": "appliedenergistics2:part",
+      "data": 76
+    },
+    "B": {
+      "item": "appliedenergistics2:material",
+      "data": 24
+    }
+  },
+  "result": {
+    "item": "ae2expert:cable_32"
+  }
+}

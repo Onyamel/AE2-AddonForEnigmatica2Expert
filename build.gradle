@@ -1,0 +1,90 @@
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
+        maven { url = 'https://repo.spongepowered.org/maven' }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3.10'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+version = '1.2.0'
+group = 'com.e2e.ae2expert'
+archivesBaseName = 'ae2expert'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+sourceSets.test.compileClasspath += sourceSets.main.compileClasspath
+
+minecraft {
+    version = '1.12.2-14.23.5.2847'
+    runDir = 'run'
+    mappings = 'stable_39'
+    makeObfSourceJar = false
+}
+
+repositories {
+    // Группа входит в путь: исходный jar не подменит deobf.local из кэша ForgeGradle.
+    maven { url = uri('libs/maven') }
+}
+
+dependencies {
+    // Преобразование SRG в MCP позволяет проверять наследование и final-методы AE2.
+    deobfProvided 'local:appliedenergistics2:rv6-stable-7'
+    deobfProvided 'local:ExtraCells:1.12.2-2.6.7'
+    compileOnly fileTree('libs') {
+        include '*.jar'
+        exclude 'appliedenergistics2-*.jar', 'ExtraCells-*.jar'
+    }
+}
+
+afterEvaluate {
+    // ForgeGradle 2.3 автоматически добавляет всё дерево libs в compile.
+    // Убираем только эту коллекцию; выбранные зависимости задаются выше.
+    configurations.compile.dependencies.removeAll { dep ->
+        dep instanceof org.gradle.api.artifacts.SelfResolvingDependency &&
+                dep.resolve().any { it.toPath().startsWith(file('libs').toPath()) }
+    }
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'mcversion', project.minecraft.version
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        expand 'version': project.version, 'mcversion': '1.12.2'
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+    from('LICENSE')
+    from('NOTICE.md')
+    from('licenses') { into 'licenses' }
+}
+
+jar {
+    manifest {
+        attributes 'FMLAT': 'ae2expert_at.cfg',
+                'FMLCorePlugin': 'com.e2e.ae2expert.core.ExpertLoadingPlugin',
+                'FMLCorePluginContainsFMLMod': 'true'
+    }
+}
+
+task regressionCheck(type: JavaExec, dependsOn: testClasses) {
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.main.compileClasspath
+    main = 'com.e2e.ae2expert.RegressionChecks'
+    systemProperty 'file.encoding', 'UTF-8'
+}
+check.dependsOn regressionCheck
+
+task runtimeChecksJar(type: Jar, dependsOn: testClasses) {
+    from sourceSets.test.output
+    include 'com/e2e/ae2expert/RuntimeIntegrationChecks*.class'
+    classifier = 'runtime-checks'
+}
+reobf { runtimeChecksJar { classpath = sourceSets.main.output + sourceSets.test.compileClasspath } }

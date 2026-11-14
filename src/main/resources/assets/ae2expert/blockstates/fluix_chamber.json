@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "normal": { "model": "ae2expert:fluix_chamber" },
+        "inventory": { "model": "ae2expert:fluix_chamber" }
+    }
+}

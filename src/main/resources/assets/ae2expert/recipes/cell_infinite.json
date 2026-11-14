@@ -1,0 +1,25 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "CSC",
+    "SQS",
+    "CSC"
+  ],
+  "key": {
+    "C": {
+      "item": "ae2expert:cell_512m",
+      "type": "ae2expert:empty_cell"
+    },
+    "S": {
+      "item": "appliedenergistics2:material",
+      "data": 47
+    },
+    "Q": {
+      "item": "appliedenergistics2:controller"
+    }
+  },
+  "result": {
+    "item": "ae2expert:cell_infinite"
+  }
+}

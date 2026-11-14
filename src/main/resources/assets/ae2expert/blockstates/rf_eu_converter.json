@@ -1,0 +1,6 @@
+{
+    "variants": {
+        "normal": { "model": "ae2expert:rf_eu_converter" },
+        "inventory": { "model": "ae2expert:rf_eu_converter" }
+    }
+}

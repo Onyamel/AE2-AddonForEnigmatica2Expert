@@ -1,0 +1,31 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "GPG",
+    "CBC",
+    "GHG"
+  ],
+  "key": {
+    "G": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "P": {
+      "item": "appliedenergistics2:material",
+      "data": 24
+    },
+    "C": {
+      "item": "ae2expert:interface_27"
+    },
+    "B": {
+      "item": "appliedenergistics2:material",
+      "data": 27
+    },
+    "H": {
+      "item": "appliedenergistics2:interface"
+    }
+  },
+  "result": {
+    "item": "ae2expert:interface_36"
+  }
+}

@@ -1,0 +1,15 @@
+[
+  {
+    "modid": "ae2expert",
+    "name": "AE2 Expert Addon",
+    "description": "Аддон к Applied Energistics 2 для сборки Enigmatica 2: Expert. Расширенные ячейки хранения, ускоренные молекулярные сборщики, многоканальные МЭ-интерфейсы, быстрые шины, кабели повышенной ёмкости, механизм изменчивых кристаллов и конвертер RF/EU.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "authorList": ["AE2 Expert Addon"],
+    "credits": "Applied Energistics 2: AlgorithmX2 et al. (2013–2018). Код LGPLv3; производные модели и текстуры CC BY-NC-SA 3.0. См. NOTICE.md в jar.",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": ["appliedenergistics2", "ic2", "redstoneflux"]
+  }
+]

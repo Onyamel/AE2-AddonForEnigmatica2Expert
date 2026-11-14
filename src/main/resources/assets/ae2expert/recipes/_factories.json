@@ -1,0 +1,5 @@
+{
+  "ingredients": {
+    "empty_cell": "com.e2e.ae2expert.recipe.EmptyCellIngredientFactory"
+  }
+}

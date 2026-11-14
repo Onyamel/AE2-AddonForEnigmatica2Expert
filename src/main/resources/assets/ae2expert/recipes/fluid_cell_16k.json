@@ -1,0 +1,33 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "GRG",
+    "RCR",
+    "PHP"
+  ],
+  "key": {
+    "G": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "R": {
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
+    },
+    "C": {
+      "item": "appliedenergistics2:material",
+      "data": 56
+    },
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateIron"
+    },
+    "H": {
+      "item": "appliedenergistics2:material",
+      "data": 39
+    }
+  },
+  "result": {
+    "item": "ae2expert:fluid_cell_16k"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "GRG",
+    "RCR",
+    "PHP"
+  ],
+  "key": {
+    "G": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "R": {
+      "type": "forge:ore_dict",
+      "ore": "dustRedstone"
+    },
+    "C": {
+      "item": "extracells:storage.component",
+      "data": 13
+    },
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateIron"
+    },
+    "H": {
+      "item": "extracells:storage.casing",
+      "data": 2
+    }
+  },
+  "result": {
+    "item": "ae2expert:gas_cell_16k"
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "extracells"
+    }
+  ]
+}

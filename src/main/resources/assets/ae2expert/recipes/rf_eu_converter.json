@@ -1,0 +1,29 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "PCP",
+    "RAR",
+    "PCP"
+  ],
+  "key": {
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateCopper"
+    },
+    "C": {
+      "item": "ic2:casing",
+      "data": 3
+    },
+    "R": {
+      "item": "appliedenergistics2:material",
+      "data": 24
+    },
+    "A": {
+      "item": "appliedenergistics2:energy_acceptor"
+    }
+  },
+  "result": {
+    "item": "ae2expert:rf_eu_converter"
+  }
+}

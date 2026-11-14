@@ -1,0 +1,37 @@
+{
+  "type": "forge:ore_shaped",
+  "group": "ae2expert",
+  "pattern": [
+    "GPG",
+    "CBC",
+    "RHR"
+  ],
+  "key": {
+    "G": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "P": {
+      "type": "forge:ore_dict",
+      "ore": "plateGold"
+    },
+    "C": {
+      "item": "ae2expert:cell_64k",
+      "type": "ae2expert:empty_cell"
+    },
+    "B": {
+      "item": "appliedenergistics2:material",
+      "data": 23
+    },
+    "R": {
+      "item": "appliedenergistics2:material",
+      "data": 8
+    },
+    "H": {
+      "item": "appliedenergistics2:material",
+      "data": 39
+    }
+  },
+  "result": {
+    "item": "ae2expert:cell_128k"
+  }
+}
