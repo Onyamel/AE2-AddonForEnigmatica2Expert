@@ -1,19 +1,21 @@
-# Сборка из исходников
+# Building from source
 
-Для установки мода в игру собирать проект не требуется: используйте основной jar из Releases.
+**English** | [Русский](BUILDING-RU.md)
 
-## Инструменты
+Players should use the main jar from Releases; building is only needed for development.
 
-- **JDK 8**, проверен Temurin 8u512. Java 17/21/25 для ForgeGradle 2.3 не подходит. Это ограничение сборки, а не требование к уже настроенному Cleanroom.
-- **Python 3.9+** для подготовки зависимостей и проверки ресурсов.
-- Gradle отдельно не требуется: `gradlew.bat` / `gradlew` загружает **4.10.3**, контрольная сумма дистрибутива закреплена в wrapper properties.
-- Интернет для первой загрузки Gradle, ForgeGradle и Minecraft-зависимостей.
+## Requirements
 
-Разместите проект в пути без пробелов и кириллицы, например `D:\Projects\ae2expert-addon`. Это требование старой цепочки ForgeGradle.
+- JDK 8; tested with Temurin 8u512. Java 17/21/25 cannot run this ForgeGradle 2.3 build. This restriction does not change your configured Cleanroom runtime.
+- Python 3.9 or newer.
+- Internet for the first Gradle, ForgeGradle and Minecraft dependency download.
+- A project path without spaces or non-ASCII characters, such as `D:\Projects\ae2expert-addon`, for the legacy ForgeGradle toolchain.
+
+The Gradle Wrapper downloads version 4.10.3 and verifies the pinned distribution checksum. Do not replace it with a recent Gradle version.
 
 ## Windows
 
-Откройте PowerShell в корне проекта и выполните (заменив два пути своими):
+Open PowerShell in the project root, adjusting both paths:
 
 ```powershell
 $env:JAVA_HOME = 'C:\Java\jdk8'
@@ -21,7 +23,7 @@ python tools/setup_dependencies.py --instance 'D:\Minecraft\Enigmatica 2 Expert'
 .\build.ps1
 ```
 
-Если PowerShell блокирует запуск `.ps1`, можно выполнить те же шаги без него:
+If PowerShell does not allow `.ps1` scripts, use:
 
 ```powershell
 python tools/setup_dependencies.py --check
@@ -29,11 +31,9 @@ python tools/validate_resources.py
 .\gradlew.bat build --console plain
 ```
 
-Готовый игровой файл: `build/libs/ae2expert-1.2.0.jar`. **Не** устанавливайте `*-runtime-checks.jar` в рабочий инстанс.
+The main output is `build/libs/ae2expert-1.3.0.jar`. Do not install `*-runtime-checks.jar` in a normal instance. Use `.\build.ps1 -Offline` when dependencies are cached. `-JavaHome` selects a JDK explicitly; `-GradleHome` selects an existing Gradle 4.10.3 installation.
 
-Повторная сборка из кэша: `.\build.ps1 -Offline`. Параметр `-JavaHome 'C:\Java\jdk8'` задаёт JDK явно; `-GradleHome` позволяет использовать уже установленный Gradle 4.10.3.
-
-## Linux/macOS
+## Linux and macOS
 
 ```bash
 export JAVA_HOME=/path/to/jdk8
@@ -43,25 +43,23 @@ python3 tools/validate_resources.py
 sh gradlew build --console plain
 ```
 
-Команды сборки переносимы, но эта платформа отдельно не проверялась. Игровой launcher из `tools` рассчитан на Windows/Prism.
+These build commands are portable but have not been tested separately on these platforms. The gameplay launcher is Windows/Prism-specific.
 
-## Зависимости и проверки
+## Dependencies and validation
 
-Точные имена девяти jar перечислены в [libs/README.md](../libs/README.md). Зависимости не включены в репозиторий. Скрипт берёт их из локальной установленной E2E; он не скачивает сборку и не меняет её файлы. Если нужные версии отсутствуют, получите их на страницах авторов, а не переименовывайте другую версию.
+The nine required jars and official project pages are listed in [libs/README.md](../libs/README.md). They are not redistributed. The setup script copies only the listed files from your installed E2E instance, then stages AE2 and ExtraCells in a local Maven repository. It does not change the instance. Do not rename different mod versions to match expected filenames. `dependencies.json` records checksums; differing files are reported.
 
-`gradlew build` включает 105 регрессионные проверки. `python tools/validate_resources.py` проверяет JSON, ссылки на собственные ресурсы, 71 рецепт и совпадение ключей локализаций. Для воспроизведения моделей и рецептов: `python tools/generate_resources.py`; PNG уже входят в исходники.
+`gradlew build` runs 114 regression checks. The resource validator checks JSON, internal resource references, 71 recipes and matching translation keys. Resource generation tools are in `tools`; the source archive already includes PNG assets. Review regenerated changes before replacing hand-maintained translations.
 
-Компиляция выполняется против **Forge 1.12.2-14.23.5.2847**: для 2860 отсутствует старый артефакт userdev, необходимый ForgeGradle 2.3. Зависимости AE2/ExtraCells предварительно размещаются в локальном Maven-каталоге, затем преобразуются из SRG в MCP средствами ForgeGradle. Ошибка преобразования/недоступность старого репозитория требует проверки журнала Gradle; наличие jar в `libs` не заменяет первичную подготовку среды Minecraft.
+Compilation uses Forge **1.12.2-14.23.5.2847**, since 2860 has no legacy userdev artifact for ForgeGradle 2.3. AE2/ExtraCells dependencies are remapped from SRG to MCP. Merely placing jars in `libs` does not replace initial Minecraft environment setup. Consult the Gradle log if remapping or a legacy repository fails.
 
-## Игровой стенд (не нужен игрокам)
-
-Создайте проверочный jar:
+## Isolated gameplay checks
 
 ```powershell
 .\build.ps1 -RuntimeChecks
 python tools/launch_runtime_check.py --prism 'D:\PrismData' --instance 'D:\Minecraft\Enigmatica 2 Expert' --java-home 'C:\Java\jdk8'
 ```
 
-`--prism` должен указывать на каталог с `libraries`, `assets`, `meta`. Игра и E2E должны быть уже установлены и ранее запущены через Prism. Скрипт создаёт `run-release`, копирует моды и настройки, но не пользовательские миры. Он запускает локальный тестовый профиль `AE2ExpertTest`; файлы учётной записи не читаются. Требуется достаточно свободной памяти для отдельного Minecraft. Существующий Cleanroom Relauncher может самостоятельно выбрать свой Java runtime.
+The Prism data directory must contain `libraries`, `assets` and `meta`. Install and launch the base instance through Prism first. The script copies mods and settings to `run-release`, without copying user worlds, and launches the local `AE2ExpertTest` profile. Tests use their own world. This can take several minutes and requires enough RAM for E2E. Never distribute the runtime-checks jar as the gameplay release.
 
-Результаты находятся в `run-release/launch-output.log`, строки `[AE2ExpertRuntime]` и `[AE2ExpertVisual]`. Обычный jar не содержит этот стенд.
+For packaging, run `python tools/make_release.py` after a successful build. Output is written to `dist/github-1.3.0`.

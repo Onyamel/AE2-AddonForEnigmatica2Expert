@@ -13,8 +13,8 @@ SOURCE_NAME = 'ae2expert-'+VERSION+'-sources.zip'
 RELEASE_NAME = 'ae2expert-'+VERSION+'-release.zip'
 JAR_NAME = 'ae2expert-'+VERSION+'.jar'
 FILES = ['.gitignore','.gitattributes','build.gradle','build.ps1','gradle.properties',
-         'settings.gradle','gradlew','gradlew.bat','README.md','LICENSE','NOTICE.md',
-         'CHANGELOG-'+VERSION+'.md','RELEASE_NOTES.md','libs/README.md','libs/dependencies.json']
+         'settings.gradle','gradlew','gradlew.bat','README.md','README-RU.md','LICENSE','NOTICE.md','NOTICE-RU.md',
+         'CHANGELOG-'+VERSION+'.md','RELEASE_NOTES.md','libs/README.md','libs/README-RU.md','libs/dependencies.json']
 TREES = ['src','gradle','docs','.github']
 TOOLS = ['generate_resources.py','generate_visuals.py','validate_resources.py',
          'setup_dependencies.py','launch_runtime_check.py','make_release.py']
@@ -61,7 +61,7 @@ def main():
     release = OUT/'release'
     release.mkdir(parents=True,exist_ok=True)
     shutil.copy2(jar,release/JAR_NAME)
-    for name in ['LICENSE','NOTICE.md','RELEASE_NOTES.md','CHANGELOG-'+VERSION+'.md']:
+    for name in ['LICENSE','NOTICE.md','NOTICE-RU.md','README.md','README-RU.md','RELEASE_NOTES.md','CHANGELOG-'+VERSION+'.md']:
         shutil.copy2(ROOT/name,release/name)
     shutil.copytree(ROOT/'licenses',release/'licenses',dirs_exist_ok=True)
     (release/'INSTALL-RU.txt').write_text('AE2 Expert Addon '+VERSION+' / Minecraft 1.12.2\n\n'
@@ -70,6 +70,7 @@ def main():
         'На сервере и у всех клиентов должна быть версия '+VERSION+'.\n'
         'Остальные файлы этого архива в mods копировать не нужно.\n'
         'Исходники опубликованы рядом с jar в релизе и в репозитории проекта.\n',encoding='utf-8')
+    (release/'INSTALL-EN.txt').write_text('AE2 Expert Addon '+VERSION+' / Minecraft 1.12.2\n\nClose Minecraft and back up your world. Replace the previous addon jar in minecraft/mods with '+JAR_NAME+'. Install the same version on the server and all clients. Do not copy the other archive files into mods. Source code is included alongside the release.\n',encoding='utf-8')
     checksum=digest(jar)+'  '+JAR_NAME+'\n'
     (release/'SHA256SUMS.txt').write_text(checksum,encoding='utf-8')
     archive(OUT/RELEASE_NAME,[(p,p.relative_to(release).as_posix()) for p in release.rglob('*') if p.is_file()])
@@ -77,6 +78,7 @@ def main():
     shutil.copy2(ROOT/'RELEASE_NOTES.md',OUT/'RELEASE_NOTES.md')
     shutil.copy2(ROOT/'docs/PUBLISHING-RU.md',OUT/'КАК_ОПУБЛИКОВАТЬ.md')
     (OUT/'SHA256SUMS.txt').write_text(''.join(digest(OUT/name)+'  '+name+'\n' for name in [JAR_NAME,SOURCE_NAME,RELEASE_NAME]),encoding='utf-8')
+    shutil.copy2(ROOT/'docs/PUBLISHING-EN.md',OUT/'HOW_TO_PUBLISH.md')
     packname='ae2expert-'+VERSION+'-github-pack.zip'
     archive(OUT/packname,[(p,'ae2expert-github-'+VERSION+'/'+p.relative_to(OUT).as_posix()) for p in OUT.rglob('*') if p.is_file() and p.name!=packname])
     print('Пакет готов: '+str(OUT))

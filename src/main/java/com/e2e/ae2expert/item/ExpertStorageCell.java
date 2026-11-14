@@ -64,6 +64,8 @@ public abstract class ExpertStorageCell<T extends IAEStack<T>> extends AEBaseIte
         lines.add(I18n.translateToLocalFormatted("ae2expert.cell.tooltip.types", types));
         lines.add(I18n.translateToLocalFormatted("ae2expert.cell.tooltip.bytes", CellTier.formatUnits(bytes)));
         lines.add(I18n.translateToLocal("ae2expert.cell.tooltip.empty_upgrade"));
-        AEApi.instance().client().addCellInformation(getCellInventory(stack, null, getChannel()), lines);
+        LongCellInventory<T> inspected = new LongCellInventory<>(stack, null, getChannel(), bytes, types, typeBytes, drain);
+        if (inspected.hasInvalidEntries()) lines.add(I18n.translateToLocal("ae2expert.cell.tooltip.invalid"));
+        AEApi.instance().client().addCellInformation(new BasicCellInventoryHandler<>(inspected, getChannel()), lines);
     }
 }

@@ -27,6 +27,8 @@ public class LongCellInventory<T extends IAEStack<T>> implements ICellInventory<
     private IItemList<T> items;
     private long storedUnits;
     private int storedTypes;
+    // Неразбираемые записи сохраняются без изменений, а не исчезают при следующей записи NBT.
+    private NBTTagList quarantined = new NBTTagList();
 
     public LongCellInventory(ItemStack cell, ISaveProvider saveProvider, IStorageChannel<T> channel,
             long totalBytes, int maxTypes, int bytesPerType, double drain) {
@@ -40,16 +42,27 @@ public class LongCellInventory<T extends IAEStack<T>> implements ICellInventory<
         items = channel.createList();
         NBTTagCompound root = cell.getTagCompound();
         if (root == null) return;
+        quarantined = root.getTagList("expertInvalidItems", 10).copy();
         NBTTagList data = root.getTagList("expertItems", 10);
         for (int i = 0; i < data.tagCount(); i++) {
-            T entry = channel.createFromNBT(data.getCompoundTagAt(i));
-            if (entry != null && entry.getStackSize() > 0) {
+            NBTTagCompound raw = data.getCompoundTagAt(i);
+            try {
+                T entry = channel.createFromNBT(raw);
+                if (entry == null || entry.getStackSize() <= 0
+                        || entry.getStackSize() > Long.MAX_VALUE - storedUnits) {
+                    quarantined.appendTag(raw.copy());
+                    continue;
+                }
                 if (items.findPrecise(entry) == null) storedTypes++;
-                storedUnits = Math.addExact(storedUnits, entry.getStackSize());
+                storedUnits += entry.getStackSize();
                 items.addStorage(entry);
+            } catch (RuntimeException malformed) {
+                quarantined.appendTag(raw.copy());
             }
         }
     }
+
+    public boolean hasInvalidEntries() { return quarantined.tagCount() > 0; }
 
     private void changed() {
         if (saveProvider == null) persist(); else saveProvider.saveChanges(this);
@@ -71,11 +84,16 @@ public class LongCellInventory<T extends IAEStack<T>> implements ICellInventory<
     }
     @Override public long getUsedBytes() {
         long count = getStoredItemCount(), units = channel.getUnitsPerByte();
-        return getStoredItemTypes() * bytesPerType + count / units + (count % units == 0 ? 0 : 1);
+        long payload = count / units + (count % units == 0 ? 0 : 1);
+        long overhead = getStoredItemTypes() * bytesPerType;
+        return payload > Long.MAX_VALUE - overhead ? Long.MAX_VALUE : payload + overhead;
     }
     @Override public long getFreeBytes() { return Math.max(0, totalBytes - getUsedBytes()); }
     @Override public long getRemainingItemCount() {
-        return Math.max(0, (totalBytes - getStoredItemTypes() * bytesPerType) * channel.getUnitsPerByte() - getStoredItemCount());
+        long bytes = Math.max(0, totalBytes - getStoredItemTypes() * bytesPerType);
+        long units = channel.getUnitsPerByte();
+        long capacity = bytes > Long.MAX_VALUE / units ? Long.MAX_VALUE : bytes * units;
+        return Math.max(0, capacity - getStoredItemCount());
     }
     @Override public int getUnusedItemCount() {
         long remainder = getStoredItemCount() % channel.getUnitsPerByte();
@@ -151,5 +169,7 @@ public class LongCellInventory<T extends IAEStack<T>> implements ICellInventory<
             data.appendTag(tag);
         }
         root.setTag("expertItems", data);
+        if (quarantined.tagCount() > 0) root.setTag("expertInvalidItems", quarantined.copy());
+        else root.removeTag("expertInvalidItems");
     }
 }

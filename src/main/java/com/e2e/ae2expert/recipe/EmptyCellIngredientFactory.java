@@ -16,6 +16,7 @@ public final class EmptyCellIngredientFactory implements IIngredientFactory {
                 if (!super.apply(stack)) return false;
                 if (!stack.hasTagCompound()) return true;
                 if (stack.getTagCompound().getTagList("expertItems", 10).tagCount() > 0) return false;
+                if (stack.getTagCompound().getTagList("expertInvalidItems", 10).tagCount() > 0) return false;
                 if (stack.getTagCompound().getInteger("ic") > 0) return false;
                 // Карты AE2 лежат в составном теге upgrades; не допускаем их потери.
                 net.minecraft.nbt.NBTTagCompound upgrades = stack.getTagCompound().getCompoundTag("upgrades");

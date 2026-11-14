@@ -40,7 +40,6 @@ public final class ChannelHook {
         try {
             if (node instanceof IGridNode) {
                 IGridNode gridNode = (IGridNode) node;
-                IGridBlock block = gridNode.getGridBlock();
                 if (gridNode.getMachine() instanceof IChannelCapacity) {
                     int capacity = ((IChannelCapacity) gridNode.getMachine()).getChannelCapacity();
                     return Math.max(0, capacity);
@@ -53,16 +52,28 @@ public final class ChannelHook {
         return 8;
     }
 
-    private static Field connectionData;
+    private static volatile Field connectionData;
+
+    private static Field connectionData() throws ReflectiveOperationException {
+        Field result = connectionData;
+        if (result == null) {
+            synchronized (ChannelHook.class) {
+                result = connectionData;
+                if (result == null) {
+                    result = Class.forName("appeng.me.GridConnection").getDeclaredField("channelData");
+                    result.setAccessible(true);
+                    connectionData = result;
+                }
+            }
+        }
+        return result;
+    }
 
     /** Текущий счётчик соединения расширен ASM-патчем до 16 бит. */
     public static boolean connectionCanCarry(Object object) {
         try {
             IGridConnection connection = (IGridConnection) object;
-            if (connectionData == null) {
-                connectionData = Class.forName("appeng.me.GridConnection").getDeclaredField("channelData");
-                connectionData.setAccessible(true);
-            }
+            Field counter = connectionData();
             int capacity = 32;
             Object a = connection.a().getMachine(), b = connection.b().getMachine();
             boolean customA = a instanceof IChannelCapacity, customB = b instanceof IChannelCapacity;
@@ -73,7 +84,7 @@ public final class ChannelHook {
                         : b instanceof appeng.tile.networking.TileController ? 256 : getMaxChannels(connection.b());
                 capacity = Math.min(ca, cb);
             }
-            return (connectionData.getInt(object) & 0xffff) < capacity;
+            return (counter.getInt(object) & 0xffff) < capacity;
         } catch (ReflectiveOperationException | RuntimeException failure) {
             logOnce("getMaxChannels", failure);
             return false;
@@ -99,7 +110,7 @@ public final class ChannelHook {
         return 8;
     }
 
-    private static Field compressedData() {
+    private static synchronized Field compressedData() {
         if (!compressedDataResolved) {
             compressedDataResolved = true;
             try {

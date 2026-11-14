@@ -74,6 +74,30 @@ public final class RegressionChecks {
         toRf.invoke(tile);
         check(rf.getEnergyStored() - oldRf == (int) Math.floor(before * 3.6), "Выход EU -> RF");
         check(rf.getEnergyStored() - oldRf <= (before - tile.getEuBuffer()) * 3.6 + 1e-8, "Энергия не создаётся");
+        double protectedEu = tile.getEuBuffer();
+        tile.drawEnergy(100);
+        check(tile.getEuBuffer() == protectedEu, "EU не списывается в режиме приёма");
+        tag.setDouble("eu", 9999.9);
+        tag.setInteger("rf", 100);
+        tag.setBoolean("rfToEu", true);
+        restored.readFromNBT(tag);
+        toEu.invoke(restored);
+        check(restored.getEnergyStored() == 100 && restored.getEuBuffer() == 9999.9,
+                "Доля свободного EU меньше цены 1 RF не уничтожает RF");
+        tag.setDouble("eu", 0.1);
+        tag.setInteger("rf", 0);
+        tag.setBoolean("rfToEu", false);
+        restored.readFromNBT(tag);
+        for (int i=0;i<10000;i++) toRf.invoke(restored);
+        check(restored.getEuBuffer() == 0.1 && restored.getEnergyStored() == 0,
+                "Дробная энергия сохраняется, а не теряется при ожидании");
+        for (int i=0;i<10000;i++) {
+            restored.injectEnergy(null, 0.1, 0);
+            toRf.invoke(restored);
+            restored.extractEnergy(null, 4096, false);
+        }
+        check(restored.getEuBuffer() >= 0 && restored.getEuBuffer() < 1.0 / 3.6,
+                "Малые конверсии сохраняют ограниченный остаток");
         tag.setInteger("rf", 40000);
         tag.setDouble("eu", Double.NaN);
         restored.readFromNBT(tag);
@@ -88,6 +112,9 @@ public final class RegressionChecks {
         check(cell.injectItems(new TestStack("A", big), Actionable.SIMULATE, null) == null && cell.getStoredItemCount() == 0, "Симуляция большого ввода");
         cell.injectItems(new TestStack("A", big), Actionable.MODULATE, null);
         check(cell.getStoredItemCount() == big, "Количество больше Integer.MAX_VALUE");
+        TestStack simulated = cell.extractItems(new TestStack("A", big), Actionable.SIMULATE, null);
+        check(simulated.count == big && cell.getStoredItemCount() == big && cell.getStoredItemTypes() == 1,
+                "Симуляция полного извлечения сохраняет количество и тип");
         TestStack extracted = cell.extractItems(new TestStack("A", big), Actionable.MODULATE, null);
         check(extracted.getStackSize() == big && cell.getStoredItemTypes() == 0, "Извлечение освобождает тип");
         for (int i = 0; i < 63; i++) cell.injectItems(new TestStack("type" + i, 1), Actionable.MODULATE, null);
@@ -112,6 +139,21 @@ public final class RegressionChecks {
         saved.injectItems(new TestStack("long", 5_000_000_000L), Actionable.MODULATE, null);
         LongCellInventory<TestStack> loaded = new LongCellInventory<>(persisted, null, channel, 1L << 50, 1024, 1024, 8);
         check(loaded.getStoredItemCount() == 5_000_000_000L, "Сохранение long в NBT и загрузка");
+        net.minecraft.nbt.NBTTagList corrupt = new net.minecraft.nbt.NBTTagList();
+        for (TestStack entry : Arrays.asList(new TestStack("huge", Long.MAX_VALUE), new TestStack("overflow", 1), new TestStack("negative", -1))) {
+            NBTTagCompound raw = new NBTTagCompound(); entry.writeToNBT(raw); corrupt.appendTag(raw);
+        }
+        persisted.getTagCompound().setTag("expertItems", corrupt);
+        LongCellInventory<TestStack> damaged = new LongCellInventory<>(persisted,null,channel,1L<<29,63,8,1);
+        check(damaged.getStoredItemCount() == Long.MAX_VALUE && damaged.getRemainingItemCount() == 0
+                && damaged.hasInvalidEntries(), "Повреждённый NBT не переполняет счётчик и не падает");
+        damaged.extractItems(new TestStack("huge", 1), Actionable.MODULATE, null);
+        check(persisted.getTagCompound().getTagList("expertInvalidItems",10).tagCount() == 2,
+                "Повреждённые записи сохраняются отдельно без потери исходных данных");
+        LongCellInventory<TestStack> reread = new LongCellInventory<>(persisted,null,channel,1L<<29,63,8,1);
+        reread.persist();
+        check(persisted.getTagCompound().getTagList("expertInvalidItems",10).tagCount() == 2,
+                "Повторное сохранение не дублирует карантин");
     }
 
     private static byte[] bytes(String name) throws Exception {
@@ -187,6 +229,29 @@ public final class RegressionChecks {
         compressed.setAccessible(true);
         compressed.setInt(dense, 2);
         check((int) max.invoke(dense) == 32, "Штатный плотный кабель сохраняет 32 канала");
+        Class<?> hook = isolated.loadClass("com.e2e.ae2expert.core.ChannelHook");
+        for (String name : Arrays.asList("connectionData", "compressedDataField")) {
+            Field cache = hook.getDeclaredField(name); cache.setAccessible(true); cache.set(null, null);
+        }
+        Field resolved = hook.getDeclaredField("compressedDataResolved");
+        resolved.setAccessible(true); resolved.setBoolean(null, false);
+        Object custom = nodeType.getConstructor(IGridBlock.class).newInstance(gridBlock(256));
+        Object edge = constructor.newInstance(custom, dense, appeng.api.util.AEPartLocation.EAST);
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(8);
+        java.util.concurrent.CountDownLatch gate = new java.util.concurrent.CountDownLatch(1);
+        List<java.util.concurrent.Future<Boolean>> results = new ArrayList<>();
+        try {
+            for(int i=0;i<8;i++)results.add(pool.submit(() -> {
+                gate.await();
+                for(int j=0;j<2000;j++)if((int)max.invoke(dense)!=32 || !(boolean)canCarry.invoke(edge))return false;
+                return true;
+            }));
+            gate.countDown();
+            boolean success = true;
+            for(java.util.concurrent.Future<Boolean> result:results)success &= result.get();
+            check(success, "Параллельное первое разрешение reflection: 8 потоков, 16000 обращений");
+        } finally { pool.shutdownNow(); }
+
     }
 
     private static IGridBlock gridBlock(int capacity) {

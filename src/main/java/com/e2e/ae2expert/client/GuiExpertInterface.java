@@ -29,6 +29,11 @@ public final class GuiExpertInterface extends GuiContainer {
         drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         renderHoveredToolTip(mouseX, mouseY);
+        if (mouseX >= guiLeft + 228 && mouseX < guiLeft + 242
+                && mouseY >= guiTop + 3 && mouseY < guiTop + 15)
+            drawHoveringText(java.util.Arrays.asList(
+                    I18n.format(container.active ? "ae2expert.gui.online" : "ae2expert.gui.offline"),
+                    I18n.format("ae2expert.gui.queued", container.queuedItems)), mouseX, mouseY);
     }
     @Override protected void drawGuiContainerBackgroundLayer(float ticks, int mouseX, int mouseY) {
         drawRect(guiLeft, guiTop, guiLeft + xSize, guiTop + ySize, 0xff272b31);

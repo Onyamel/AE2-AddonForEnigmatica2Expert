@@ -1,67 +1,67 @@
 # AE2 Expert Addon
 
-Аддон для **Enigmatica 2: Expert, Minecraft 1.12.2**. Версия **1.2.0**: 71 предмет/блок и 71 рецепт в прогрессии E2E. Неофициальное расширение Applied Energistics 2.
+**English** | [Русский](README-RU.md)
 
-## Установка для игры
+An unofficial Applied Energistics 2 expansion for **Enigmatica 2: Expert 1.93a**, Minecraft **1.12.2**. Version **1.3.0** adds 71 items and blocks, with 71 crafting recipes designed for E2E progression. In-game language: **English and Russian**, selected through Minecraft's language settings.
 
-1. В разделе **Releases** скачайте `ae2expert-1.2.0.jar`.
-2. Закройте Minecraft и сохраните резервную копию мира.
-3. Через Prism Launcher откройте **папку Minecraft** нужного инстанса, затем `mods`.
-4. Замените старый jar аддона новым. Одновременно оставляйте только одну версию.
-5. На сервере и у всех клиентов установите одинаковую версию **1.2.0**.
+## Installation
 
-Для игры не нужны исходники, JDK, Gradle, отдельный ресурспак или `runtime-checks.jar`. Зависимости уже входят в проверенную E2E; аддон не является самостоятельной сборкой модов. Подробности версий — [libs/README.md](libs/README.md).
+1. Download `ae2expert-1.3.0.jar` from **Releases**.
+2. Close Minecraft and back up your world.
+3. Open your instance's Minecraft folder in Prism Launcher, then open `mods`.
+4. Replace the previous addon jar. Keep only one version installed.
+5. Install version **1.3.0** on the server and every client.
 
-## Возможности
+Players do not need the source archive, JDK, Gradle, a separate resource pack, or `runtime-checks.jar`. The required mods are already part of the tested E2E setup. See [dependencies](libs/README.md) for exact versions.
 
-| Модуль | Содержимое |
+## Features
+
+| Module | Contents |
 |---|---|
-| Ячейки | По 16 тиров предметов, жидкостей и газов: 16k–512M байт, 63 типа; счётчики `long` |
-| Особая ячейка | 1024 типа предметов, ёмкость `2^50` байт |
-| Сборщики | ×2 / ×4 / ×8 / ×16 / ×32; штатная логика AE2, соответствующий расход энергии |
-| Интерфейсы | 18 / 27 / 36 / 48 / 64 слота в каждой вкладке: настройка, буфер, шаблоны |
-| Шины | Импорт и экспорт ×4 / ×8 / ×16; поддержка карт AE2 |
-| Кабели | 32 / 64 / 128 / 256 каналов; для сети больше восьми каналов нужен контроллер |
-| Камера кристаллов | Заряженный истинный кварц + редстоун + кварц Нижнего мира → 2 изменчивых кристалла за 100 тиков и 4000 RF |
-| Конвертер | RF ↔ EU, переключение направления; базовый коэффициент 4 RF/EU, потери 10% в каждом направлении |
+| Storage cells | 16 tiers each for items, fluids and gases: 16k–512M bytes, 63 types, long counters |
+| Infinite storage cell | 1024 item types and 2^50 bytes; extremely large but finite capacity |
+| Molecular assemblers | ×2 / ×4 / ×8 / ×16 / ×32; AE2 crafting logic with corresponding energy use |
+| ME interfaces | 18 / 27 / 36 / 48 / 64 slots per configuration, stock and pattern tab |
+| Import/export buses | ×4 / ×8 / ×16; nine filters available without capacity cards; AE2 upgrade support |
+| Cables | 32 / 64 / 128 / 256 channels; networks above eight channels need a controller |
+| Fluix Crystal Chamber | Charged Certus Quartz + Redstone + Nether Quartz → 2 Fluix Crystals in 100 ticks, using 4000 RF; JEI/HEI recipe integration |
+| RF ↔ EU Converter | Switchable direction, base rate 4 RF/EU, 10% loss in each direction |
 
-Газовые ячейки используют ExtraCells и Mekanism. Конвертер поддерживает Forge Energy, классический RF и IC2 EnergyNet; до 256 EU преобразования за тик.
+Gas cells use ExtraCells and Mekanism. The converter supports Forge Energy, classic RF and IC2 EnergyNet, with up to 256 EU of conversion input per tick.
 
-## Что изменилось в 1.2.0
+## Version 1.3.0
 
-Шины импорта/экспорта аддона имеют 9 фильтров без карт ёмкости. На обычные плотные кабели AE2 и все кабели аддона можно ставить терминалы, интерфейсы и шины. Рецепт камеры кристаллов добавлен в JEI/HEI: он находится через R на изменчивом кристалле и U на ингредиентах, рядом с остальными способами получения.
+This release contains the logic fixes previously prepared as 1.2.1, now published under version 1.3.0, together with bilingual documentation. It fixes interface recovery items being sent to the wrong destination, unsafe reflection/model initialization, damaged cell NBT handling, energy rounding and container input handling. Cable recoloring skips unsupported vertex formats safely.
 
-Спокойная палитра и нейтральные корпуса, прозрачные сборщики с исходными огнями AE2 и метками тира, отдельные модели двух машин. Исправлены пределы каналов Waila/TOP и переполнение чисел в визуализаторе AE2 Stuff. Устранена найденная причина исчезновения кабелей при параллельном рендере Nothirium — конкурентный доступ к HashMap моделей AE2.
+See the [changelog](CHANGELOG-1.3.0.md) and [audit and validation report](docs/AUDIT-1.3.0.md). Earlier features include native nine-slot bus filters, dense-cable attachments, JEI recipes, muted colors and full channel telemetry.
 
-[Полный список изменений](CHANGELOG-1.2.0.md) · [Результаты проверок](docs/VALIDATION-1.2.0.md)
+![Fluix Chamber recipe in JEI](docs/images/fluix-chamber-jei.png)
 
-![Рецепт камеры в JEI](docs/images/fluix-chamber-jei.png)
+![256-channel network visualizer](docs/images/network-256.png)
 
-![Визуализатор сети на 256 каналов](docs/images/network-256.png)
+## Usage and limitations
 
-## Использование и ограничения
+Right-click an interface to open it. On the configuration tab, left-click copies the held item and stack size; right-click sets one item. With an empty cursor, left-click clears a sample and right-click reduces it. Samples do not consume items. The interface maintains the requested stock in matching buffer slots and returns excess items to ME storage. External pipes access the buffer only.
 
-Интерфейс открывается ПКМ. Во вкладке настройки ЛКМ копирует тип и количество из руки, ПКМ задаёт один предмет. Пустая рука очищает слот ЛКМ или уменьшает количество ПКМ. Образцы не расходуют предметы. Интерфейс поддерживает заданный запас в соответствующих слотах буфера и возвращает излишки в МЭ. Внешние трубы работают с буфером.
+Crafting patterns go to an adjacent molecular assembler; processing patterns go to an adjacent inventory. Undelivered ingredients are saved and retried at the same neighbor. Stock-recovery items are saved separately. Hover over the network indicator to see how many items await delivery. Each interface needs one channel.
 
-Шаблоны верстака передаются соседнему молекулярному сборщику, обработки — соседнему инвентарю. Непереданный остаток сохраняется в NBT и повторно отправляется тому же соседу. Интерфейс требует один канал.
+The new interface blocks have their own GUI. Integration with AE2's Interface Terminal, priorities, blocking mode, the crafting card for stocking, and fluid-network pass-through are not implemented for these blocks.
 
-У новых интерфейсов собственный GUI. Терминал интерфейсов AE2, приоритеты, блокирующий режим, карта автоматического заказа запасов и сквозной доступ к жидкостной сети для этих блоков пока не реализованы.
+Use the converter's GUI button or sneak-right-click to switch direction. RF is accepted in RF→EU mode and extracted in EU→RF mode. Buffers survive chunk unloads; sub-RF energy remains in the EU buffer.
 
-Конвертер меняет направление кнопкой GUI или Shift+ПКМ. В режиме RF→EU RF доступен на вход, в режиме EU→RF — на выход. Буферы сохраняются при выгрузке чанка.
+Cable color identifies the tier, rather than an isolated AE2 color network. Standard recoloring is disabled. Indicators show the proportion of capacity in use; tooltips and the visualizer show exact counts up to 256. Dense cables accept terminals, interfaces and buses. Native channel capacity and P2P behavior are preserved.
 
-Цвет кабеля обозначает тир, а не изолированную цветовую сеть. Штатная перекраска отключена. Полосы показывают долю занятой ёмкости; подсказки и визуализатор передают точные числа до 256. Пропускная способность обычных кабелей AE2 и P2P сохраняется; на плотных кабелях разрешены части.
+Cell upgrades require empty input cells with upgrade cards removed. Damaged entries are preserved separately in NBT and flagged in the tooltip; affected cells cannot be upgraded through crafting. Addon cells reject direct insertion of storage cells. Higher tiers use ExtraCells housings and E2E iridium plates.
 
-Крафт улучшения ячеек требует пустых исходных ячеек со снятыми картами. Ячейки не вкладываются в ячейки аддона. Высокие тиры используют корпуса ExtraCells и иридиевые пластины E2E.
+## Development and support
 
-## Для разработчиков
+- [Build from source](docs/BUILDING.md)
+- [Update a repository and publish with GitHub Desktop](docs/PUBLISHING-EN.md)
+- [Dependency versions](libs/README.md)
+- Report reproducible problems through **Issues**, including versions, reproduction steps and relevant logs with private data removed.
 
-- [Сборка из исходников](docs/BUILDING.md): JDK 8, Python 3.9+, Gradle Wrapper 4.10.3, ForgeGradle 2.3.10.
-- [Первая публикация на GitHub](docs/PUBLISHING-RU.md).
-- [Проверенные зависимости](libs/README.md).
-- Для сообщений об ошибках используйте вкладку **Issues** репозитория: приложите версии модов, действия для повторения и относящуюся к ошибке часть журнала. Перед отправкой удалите личные сведения.
+Source code is in `src/main`, checks in `src/test`, and tools in `tools`. The main jar excludes the test mod. Compilation targets Forge 2847 because ForgeGradle 2.3 needs the older userdev artifact. The gameplay tests used E2E with Cleanroom 0.6.11-alpha (Forge compatibility 2864), Java 25 and Nothirium. See the audit for test coverage and limits.
 
-Исходники находятся в `src/main`, проверки — в `src/test`, генераторы моделей/рецептов и инструменты — в `tools`. Основной jar не содержит проверочный мод. Компиляция выполняется против Forge 2847; фактический игровой прогон проведён в E2E с Cleanroom 0.6.11-alpha (Forge-совместимость 2864), Java 25 и Nothirium. Это не заменяет длительное тестирование всех возможных сборок.
+## Licensing
 
-## Лицензии
-
-**Код: LGPL-3.0-only** ([LICENSE](LICENSE)). **Производные текстуры и модели AE2: CC BY-NC-SA 3.0**; их нельзя считать материалами под LGPL. Авторы исходных материалов AE2 — AlgorithmX2 et al. Подробное авторство, изменения и тексты лицензий: [NOTICE.md](NOTICE.md), [licenses/](licenses/).
+Code: **LGPL-3.0-only** ([LICENSE](LICENSE)). AE2-derived textures and models: **CC BY-NC-SA 3.0**, separately from the code license. Original AE2 assets are by AlgorithmX2 et al. See [NOTICE.md](NOTICE.md) and [licenses](licenses/). This is not an official AE2 or Enigmatica release.

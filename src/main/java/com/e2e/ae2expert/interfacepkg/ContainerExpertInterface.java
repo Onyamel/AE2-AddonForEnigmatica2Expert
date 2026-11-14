@@ -13,6 +13,7 @@ public final class ContainerExpertInterface extends Container {
     public final TileExpertInterface tile;
     public int tab;
     public boolean active;
+    public int queuedItems;
     private final int size;
 
     public ContainerExpertInterface(EntityPlayer player, TileExpertInterface tile) {
@@ -37,6 +38,7 @@ public final class ContainerExpertInterface extends Container {
 
     public void setTab(int value) {
         if (value < 0 || value > 2) return;
+        if (tab != value) resetDrag();
         tab = value;
         for (int group = 0; group < 3; group++) for (int slot = 0; slot < size; slot++) {
             Slot current = inventorySlots.get(group * size + slot);
@@ -54,22 +56,29 @@ public final class ContainerExpertInterface extends Container {
     @Override public void detectAndSendChanges() {
         super.detectAndSendChanges();
         active = tile.getProxy().isActive();
+        queuedItems = tile.getQueuedItemCount();
         for (IContainerListener listener : listeners) {
             listener.sendWindowProperty(this, 0, tab);
             listener.sendWindowProperty(this, 1, active ? 1 : 0);
+            listener.sendWindowProperty(this, 2, queuedItems & 0xffff);
+            listener.sendWindowProperty(this, 3, queuedItems >>> 16);
         }
     }
     @Override public void updateProgressBar(int id, int value) {
         if (id == 0) setTab(value);
         if (id == 1) active = value != 0;
+        if (id == 2) queuedItems = (queuedItems & 0xffff0000) | (value & 0xffff);
+        if (id == 3) queuedItems = (queuedItems & 0xffff) | ((value & 0xffff) << 16);
     }
 
     @Override public ItemStack slotClick(int id, int button, ClickType type, EntityPlayer player) {
         if (!canInteractWith(player)) return ItemStack.EMPTY;
+        // -999 и -1 используются ванильным протоколом кликов/перетаскивания.
+        if (id >= inventorySlots.size() || (id < 0 && id != -999 && id != -1)) return ItemStack.EMPTY;
         if (id >= 0 && id < size * 3) {
             if (id / size != tab) return ItemStack.EMPTY;
             if (tab == 0) {
-                if (type != ClickType.PICKUP || button > 1) return ItemStack.EMPTY;
+                if (type != ClickType.PICKUP || button < 0 || button > 1) return ItemStack.EMPTY;
                 ItemStack cursor = player.inventory.getItemStack();
                 ItemStack old = tile.config.getStackInSlot(id);
                 ItemStack ghost = cursor.isEmpty() ? ItemStack.EMPTY : cursor.copy();
@@ -86,10 +95,11 @@ public final class ContainerExpertInterface extends Container {
     }
 
     @Override public boolean canMergeSlot(ItemStack stack, Slot slot) {
-        return slot.slotNumber >= size && super.canMergeSlot(stack, slot);
+        return slot.slotNumber >= size && slot.isEnabled() && super.canMergeSlot(stack, slot);
     }
     @Override public ItemStack transferStackInSlot(EntityPlayer player, int index) {
         if (!canInteractWith(player)) return ItemStack.EMPTY;
+        if (index < 0 || index >= inventorySlots.size()) return ItemStack.EMPTY;
         Slot slot = inventorySlots.get(index);
         if (!slot.getHasStack() || (index < size * 3 && index / size != tab)) return ItemStack.EMPTY;
         ItemStack stack = slot.getStack(), original = stack.copy();

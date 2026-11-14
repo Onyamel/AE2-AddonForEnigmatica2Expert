@@ -26,16 +26,12 @@ public final class BusModels {
     private static final Map<Integer, IPartModel[]> EXPORT = new HashMap<>();
     private static final List<ResourceLocation> REGISTER = new ArrayList<>();
 
-    private static boolean built;
+    static { build(); }
 
     private BusModels() {
     }
 
     private static void build() {
-        if (built) {
-            return;
-        }
-        built = true;
         for (int multiplier : new int[] { 4, 8, 16 }) {
             IMPORT.put(multiplier, create("import_bus", multiplier));
             EXPORT.put(multiplier, create("export_bus", multiplier));
@@ -57,18 +53,15 @@ public final class BusModels {
     }
 
     public static IPartModel[] importModels(int multiplier) {
-        build();
         return IMPORT.get(multiplier);
     }
 
     public static IPartModel[] exportModels(int multiplier) {
-        build();
         return EXPORT.get(multiplier);
     }
 
     /** Must be called on the client before models are baked. */
     public static void register() {
-        build();
         AEApi.instance().registries().partModels().registerModels(REGISTER);
     }
 }

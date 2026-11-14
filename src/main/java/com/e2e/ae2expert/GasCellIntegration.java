@@ -30,6 +30,7 @@ final class GasCellIntegration {
 
     static ItemStack stack(CellTier tier) {
         Item item = gasCells.get(tier);
-        return item == null ? ItemStack.EMPTY : new ItemStack(item);
+        if (item == null) throw new IllegalStateException("Gas cell not registered: " + tier);
+        return new ItemStack(item);
     }
 }

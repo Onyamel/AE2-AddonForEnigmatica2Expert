@@ -141,14 +141,6 @@ public class TileFluixChamber extends TileEntity implements ITickable, cofh.reds
         return FluixChamberRecipe.accepts(SLOT_QUARTZ, stack);
     }
 
-    private static boolean matches(ItemStack stack, String registryName, int meta) {
-        if (stack == null || stack.isEmpty() || stack.getItem().getRegistryName() == null) {
-            return false;
-        }
-        return registryName.equals(stack.getItem().getRegistryName().toString())
-                && (meta < 0 || stack.getMetadata() == meta);
-    }
-
     // ------------------------------------------------------------------ capabilities
 
     @Override

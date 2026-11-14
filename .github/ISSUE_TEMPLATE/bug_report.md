@@ -1,21 +1,21 @@
 ---
-name: Ошибка
-about: Сообщить о воспроизводимой ошибке аддона
+name: Bug report / Ошибка
+about: Report a reproducible addon problem / Сообщить об ошибке аддона
 title: ''
 labels: bug
 assignees: ''
 ---
 
-**Версии:** Minecraft, Forge/Cleanroom, AE2, аддон, E2E и относящиеся к ошибке моды.
+**Versions / Версии:** Minecraft, Forge/Cleanroom, AE2, addon, E2E, related mods.
 
-**Что произошло:**
+**What happened / Что произошло:**
 
-**Ожидаемое поведение:**
+**Expected behavior / Ожидаемое поведение:**
 
-**Действия для повторения:**
+**Steps to reproduce / Действия для повторения:**
 
-**Одиночная игра или сервер:**
+**Single-player or server / Одиночная игра или сервер:**
 
-**Снимок/относящаяся к ошибке часть журнала:**
+**Screenshot and relevant log / Снимок и фрагмент журнала:**
 
-Перед публикацией удалите личные сведения и токены из журналов.
+Remove private information and tokens before posting logs. / Удалите личные сведения и токены перед публикацией журналов.

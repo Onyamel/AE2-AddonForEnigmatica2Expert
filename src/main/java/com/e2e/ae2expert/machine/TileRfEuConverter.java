@@ -134,7 +134,9 @@ public class TileRfEuConverter extends TileEntity implements ITickable, IEnergyS
             return;
         }
         double roomEu = Math.min(MAX_EU - this.euBuffer, MAX_EU_PER_TICK);
-        int neededRf = (int) Math.ceil(roomEu * RF_PER_EU);
+        // Не округляем расход вверх у почти заполненного буфера: это теряло RF.
+        int neededRf = Math.min((int) (MAX_EU_PER_TICK * RF_PER_EU),
+                (int) Math.floor(roomEu * RF_PER_EU / (1.0D - LOSS)));
         int available = Math.min(neededRf, this.rf.getEnergyStored());
         if (available <= 0) {
             return;
@@ -199,7 +201,7 @@ public class TileRfEuConverter extends TileEntity implements ITickable, IEnergyS
 
     @Override
     public void drawEnergy(double amount) {
-        if (!Double.isFinite(amount) || amount <= 0) return;
+        if (!this.rfToEu || !Double.isFinite(amount) || amount <= 0) return;
         this.euBuffer = Math.max(0.0D, this.euBuffer - amount);
         this.markDirty();
     }

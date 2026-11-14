@@ -30,7 +30,8 @@ public final class ClientVisuals {
             int[] copy=null;
             int offsetBytes=quad.getFormat().getColorOffset();
             int offset=offsetBytes/4, stride=quad.getFormat().getIntegerSize();
-            if(offsetBytes>=0)for(int i=offset;i<quad.getVertexData().length;i+=stride) {
+            if(offsetBytes>=0 && offsetBytes%4==0 && stride>0 && offset<stride
+                    && quad.getVertexData().length%stride==0)for(int i=offset;i<quad.getVertexData().length;i+=stride) {
                 int before=quad.getVertexData()[i], rgb=before&0xffffff;
                 // Эти два серых оттенка задаёт CableBuilder для полос индикатора.
                 if(rgb!=0x7C7C7C&&rgb!=0xC9C9C9)continue;

@@ -105,3 +105,8 @@ ae2expert.gui.config_hint=ЛКМ: количество в руке; ПКМ: 1. �
 ae2expert.gui.recipe=Рецепт
 ae2expert.jei.energy=%s RF (%s RF/т)
 ae2expert.jei.time=Время: %s с
+
+ae2expert.gui.online=Сеть подключена
+ae2expert.gui.offline=Сеть отключена
+ae2expert.gui.queued=Предметов ожидает доставки: %s
+ae2expert.cell.tooltip.invalid=Повреждённые записи сохранены в NBT; требуется восстановление

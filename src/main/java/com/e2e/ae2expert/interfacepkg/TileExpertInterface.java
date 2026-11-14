@@ -44,6 +44,8 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
     public final ItemStackHandler patterns;
     private final List<ICraftingPatternDetails> recipes = new ArrayList<>();
     private final List<ItemStack> pending = new ArrayList<>();
+    // Остаток пополнения собственных запасов не принадлежит соседней машине.
+    private ItemStack recovery = ItemStack.EMPTY;
     private boolean recipesDirty = true, advertisedActive;
     private EnumFacing pendingSide = EnumFacing.NORTH;
     private int clock, cursor;
@@ -87,13 +89,21 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
         if (recipesDirty || advertisedActive != active) {
             rebuildRecipes();
             try {
-                getProxy().getGrid().postEvent(new MENetworkCraftingPatternChange(this, getProxy().getNode()));
+                appeng.api.networking.IGrid grid = getProxy().getGrid();
                 recipesDirty = false;
                 advertisedActive = active;
-            } catch (GridAccessException disconnected) { return; }
+                grid.postEvent(new MENetworkCraftingPatternChange(this, getProxy().getNode()));
+                // Синхронный обработчик события может снова пометить шаблоны изменёнными.
+            } catch (GridAccessException disconnected) { recipesDirty = true; return; }
         }
         if (!active) return;
         flushPending();
+        if (!recovery.isEmpty()) {
+            ItemStack rest = ItemHandlerHelper.insertItemStacked(buffer, recovery, false);
+            if (rest.getCount() != recovery.getCount()) markDirty();
+            recovery = rest;
+            if (!recovery.isEmpty()) return;
+        }
         try {
             IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
             IMEMonitor<IAEItemStack> network = getProxy().getStorage().getInventory(channel);
@@ -126,8 +136,9 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
                     ItemStack rest = buffer.insertItem(slot, acquired.createItemStack(), false);
                     if (!rest.isEmpty()) {
                         // Нештатный отказ инвентаря: сохраняем предметы в очереди, не уничтожаем их.
-                        pending.add(rest);
+                        recovery = rest;
                         markDirty();
+                        break;
                     }
                 }
             }
@@ -154,6 +165,12 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
     @Override public void provideCrafting(ICraftingProviderHelper helper) {
         if (recipesDirty && world != null && !world.isRemote) rebuildRecipes();
         if (getProxy().isActive()) for (ICraftingPatternDetails recipe : recipes) helper.addCraftingOption(this, recipe);
+    }
+
+    public int getQueuedItemCount() {
+        long count = recovery.getCount();
+        for (ItemStack stack : pending) count += stack.getCount();
+        return (int) Math.min(Integer.MAX_VALUE, count);
     }
 
     @Override public boolean isBusy() { return !getProxy().isActive() || !pending.isEmpty(); }
@@ -239,6 +256,7 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
         tag.setTag("config", config.serializeNBT());
         tag.setTag("buffer", buffer.serializeNBT());
         tag.setTag("patterns", patterns.serializeNBT());
+        tag.setTag("recovery", recovery.writeToNBT(new NBTTagCompound()));
         NBTTagList queue = new NBTTagList();
         for (ItemStack stack : pending) queue.appendTag(stack.writeToNBT(new NBTTagCompound()));
         tag.setTag("pending", queue);
@@ -250,6 +268,7 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
         config.deserializeNBT(tag.getCompoundTag("config"));
         buffer.deserializeNBT(tag.getCompoundTag("buffer"));
         patterns.deserializeNBT(tag.getCompoundTag("patterns"));
+        recovery = new ItemStack(tag.getCompoundTag("recovery"));
         pending.clear();
         NBTTagList queue = tag.getTagList("pending", 10);
         for (int i = 0; i < queue.tagCount(); i++) {
@@ -266,6 +285,7 @@ public abstract class TileExpertInterface extends AENetworkTile implements ITick
             if (!patterns.getStackInSlot(i).isEmpty()) drops.add(patterns.getStackInSlot(i).copy());
         }
         for (ItemStack stack : pending) drops.add(stack.copy());
+        if (!recovery.isEmpty()) drops.add(recovery.copy());
     }
 
     public static final class S18 extends TileExpertInterface { public S18() { super(18); } }

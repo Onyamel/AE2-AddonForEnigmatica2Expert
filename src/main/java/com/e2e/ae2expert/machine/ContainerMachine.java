@@ -73,6 +73,7 @@ public final class ContainerMachine extends Container {
     }
 
     @Override public ItemStack transferStackInSlot(EntityPlayer player, int index) {
+        if (!canInteractWith(player) || index < 0 || index >= inventorySlots.size()) return ItemStack.EMPTY;
         Slot slot = inventorySlots.get(index);
         if (!slot.getHasStack()) return ItemStack.EMPTY;
         ItemStack stack = slot.getStack(), original = stack.copy();
