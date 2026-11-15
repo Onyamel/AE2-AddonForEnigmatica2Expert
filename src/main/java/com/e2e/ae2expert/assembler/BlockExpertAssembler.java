@@ -1,6 +1,7 @@
 package com.e2e.ae2expert.assembler;
 
-import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockRenderLayer;
 
 import appeng.block.crafting.BlockMolecularAssembler;
 import appeng.tile.AEBaseTile;
@@ -26,6 +27,11 @@ public class BlockExpertAssembler extends BlockMolecularAssembler {
         this.setResistance(12.0F);
         this.setCreativeTab(ModItems.TAB);
         this.setTileEntity(this.tileClass);
+    }
+
+    @Override
+    public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
+        return layer == BlockRenderLayer.CUTOUT;
     }
 
     public AssemblerTier getTier() {

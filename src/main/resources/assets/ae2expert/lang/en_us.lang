@@ -127,7 +127,7 @@ tile.ae2expert.crafting_storage_524288k.name=524288k Crafting Storage
 tile.ae2expert.crafting_coprocessor_9.name=Crafting Co-Processing Unit ×9
 tile.ae2expert.crafting_coprocessor_81.name=Crafting Co-Processing Unit ×81
 tile.ae2expert.crafting_coprocessor_729.name=Crafting Co-Processing Unit ×729
-tile.ae2expert.crafting_cpu_rack.name=Crafting CPU Rack
+tile.ae2expert.crafting_cpu_rack.name=Crafting CPU Combiner
 ae2expert.cpu.memory=Memory: %s KiB
 ae2expert.cpu.processors=Co-processors: %s
 ae2expert.cpu.busy=CPU busy: slots locked
@@ -151,3 +151,44 @@ ae2expert.radio.remove=Unlink
 ae2expert.radio.confirm_remove=Confirm unlink
 ae2expert.radio.online=Linked
 ae2expert.radio.offline=Offline
+
+ae2expert.pattern.quantity=Pattern amount (1–64)
+
+tile.ae2expert.table_terminal_basic.name=Basic Extended Crafting Terminal
+tile.ae2expert.table_assembler_basic.name=Basic Extended Molecular Assembler ×8
+
+tile.ae2expert.table_terminal_advanced.name=Advanced Extended Crafting Terminal
+tile.ae2expert.table_assembler_advanced.name=Advanced Extended Molecular Assembler ×8
+
+tile.ae2expert.table_terminal_elite.name=Elite Extended Crafting Terminal
+tile.ae2expert.table_assembler_elite.name=Elite Extended Molecular Assembler ×8
+
+tile.ae2expert.table_terminal_ultimate.name=Ultimate Extended Crafting Terminal
+tile.ae2expert.table_assembler_ultimate.name=Ultimate Extended Molecular Assembler ×8
+item.ae2expert.table_pattern.name=Extended Crafting Pattern
+gui.ae2expert.table_encode=Encode
+gui.ae2expert.table_clear=Clear
+gui.ae2expert.table_title=Pattern %s×%s
+gui.ae2expert.table_load=Load held
+
+gui.ae2expert.table_crafting=Crafting
+gui.ae2expert.table_processing=Processing
+
+gui.ae2expert.table_inputs=Inputs
+gui.ae2expert.table_outputs=Outputs
+
+gui.ae2expert.table_tier_required=Requires a %s×%s terminal or higher
+
+gui.ae2expert.table_result=Output
+
+gui.ae2expert.table_written=Pattern
+
+gui.ae2expert.table_pattern_output=Output: %s × %s
+
+gui.ae2expert.table_pattern_input=Input: %s × %s
+
+commands.ae2expert.visit.single=This command is available with one player in a single-player world.
+
+commands.ae2expert.visit.running=The event is already running.
+
+commands.ae2expert.visit.location=There is no safe spot nearby. Move to an open area and try again.

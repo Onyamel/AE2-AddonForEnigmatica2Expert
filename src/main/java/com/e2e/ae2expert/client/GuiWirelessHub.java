@@ -31,8 +31,8 @@ final class GuiWirelessHub extends GuiContainer {
         int[] xs = {8, 35, 168, 8, 151};
         int[] ws = {24, 24, 64, 140, 151};
         for (int i = 0; i < keys.length; i++)
-            buttonList.add(new GuiButton(i, guiLeft + xs[i], guiTop + (i < 2 ? 145 : i == 2 ? 171 : 195),
-                    ws[i], 20, i < 2 ? (i == 0 ? "<" : ">") : I18n.format("ae2expert.radio." + keys[i])));
+            buttonList.add(new AePanel.Action(i, guiLeft + xs[i], guiTop + (i < 2 ? 145 : i == 2 ? 171 : 195),
+                    ws[i], 20, "", i < 2 ? (i == 0 ? "<" : ">") : I18n.format("ae2expert.radio." + keys[i])));
     }
 
     @Override protected void actionPerformed(GuiButton button) {
@@ -72,12 +72,13 @@ final class GuiWirelessHub extends GuiContainer {
     }
 
     @Override protected void drawGuiContainerBackgroundLayer(float ticks, int x, int y) {
-        drawRect(guiLeft, guiTop, guiLeft + xSize, guiTop + ySize, 0xff222b32);
-        drawRect(guiLeft + 2, guiTop + 2, guiLeft + xSize - 2, guiTop + ySize - 2, 0xffc7cbd0);
+        AePanel.frame(guiLeft, guiTop, xSize, ySize);
+        AePanel.inset(guiLeft + 7, guiTop + 21, xSize - 14, 122);
+        AePanel.divider(guiLeft + 7, guiTop + 166, xSize - 14);
         for (int i = 0; i < PAGE && page * PAGE + i < hub.entries.size(); i++) {
             WirelessTile.Link link = hub.entries.get(page * PAGE + i);
             int top = guiTop + 23 + i * 15;
-            drawRect(guiLeft + 8, top, guiLeft + 302, top + 14, link.identity.equals(selected) ? 0xff85c2c3 : 0xffadb6bf);
+            drawRect(guiLeft + 8, top, guiLeft + 302, top + 14, link.identity.equals(selected) ? 0xffc5b7d3 : i % 2 == 0 ? 0xffbab8c0 : 0xffb2b0b8);
         }
     }
 

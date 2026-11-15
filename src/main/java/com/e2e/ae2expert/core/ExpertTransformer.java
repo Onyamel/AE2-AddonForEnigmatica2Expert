@@ -38,7 +38,9 @@ public class ExpertTransformer implements IClassTransformer {
             return null;
         }
         if ("appeng.me.cluster.implementations.CraftingCPUCluster".equals(transformedName))
-            return CraftingCpuTransformer.transform(basicClass);
+            return ExtendedMatrixTransformer.transform(CraftingCpuTransformer.transform(basicClass), true);
+        if ("appeng.crafting.CraftingTreeProcess".equals(transformedName))
+            return ExtendedMatrixTransformer.transform(basicClass, false);
         if ("appeng.me.cache.CraftingGridCache".equals(transformedName))
             return CraftingCpuTransformer.transformCache(basicClass);
         try {

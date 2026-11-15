@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "north": "ae2expert:blocks/cpu_coprocessor_front",
+    "south": "ae2expert:blocks/cpu_coprocessor_front",
+    "east": "ae2expert:blocks/cpu_coprocessor_side",
+    "west": "ae2expert:blocks/cpu_coprocessor_side",
+    "up": "ae2expert:blocks/cpu_coprocessor_top",
+    "down": "ae2expert:blocks/cpu_coprocessor_top",
+    "particle": "ae2expert:blocks/cpu_coprocessor_side"
+  }
+}

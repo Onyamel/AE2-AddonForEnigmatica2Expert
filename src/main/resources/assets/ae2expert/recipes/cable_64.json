@@ -16,7 +16,8 @@
       "ore": "dustRedstone"
     },
     "C": {
-      "item": "ae2expert:cable_32"
+      "item": "ae2expert:cable_32",
+      "data": 32767
     },
     "B": {
       "item": "appliedenergistics2:material",
@@ -24,6 +25,7 @@
     }
   },
   "result": {
-    "item": "ae2expert:cable_64"
+    "item": "ae2expert:cable_64",
+    "data": 0
   }
 }

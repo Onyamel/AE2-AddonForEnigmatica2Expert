@@ -1,0 +1,78 @@
+{
+  "parent": "block/block",
+  "textures": {
+    "front": "ae2expert:blocks/table_terminal_advanced_front",
+    "edge": "appliedenergistics2:parts/monitor_sides",
+    "back": "appliedenergistics2:parts/monitor_back",
+    "particle": "appliedenergistics2:parts/monitor_back"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        2,
+        13
+      ],
+      "to": [
+        14,
+        14,
+        15
+      ],
+      "faces": {
+        "up": {
+          "texture": "#edge"
+        },
+        "down": {
+          "texture": "#edge"
+        },
+        "north": {
+          "texture": "#front",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "east": {
+          "texture": "#edge"
+        },
+        "west": {
+          "texture": "#edge"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        15
+      ],
+      "to": [
+        12,
+        12,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#edge"
+        },
+        "down": {
+          "texture": "#edge"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "east": {
+          "texture": "#edge"
+        },
+        "west": {
+          "texture": "#edge"
+        }
+      }
+    }
+  ]
+}

@@ -3,7 +3,6 @@ package com.e2e.ae2expert.client;
 import com.e2e.ae2expert.crafting.ContainerCpuRack;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.inventory.Slot;
 
 public final class GuiCpuRack extends GuiContainer {
     private final ContainerCpuRack rack;
@@ -23,13 +22,8 @@ public final class GuiCpuRack extends GuiContainer {
 
     @Override
     protected void drawGuiContainerBackgroundLayer(float ticks, int x, int y) {
-        drawRect(guiLeft, guiTop, guiLeft + xSize, guiTop + ySize, 0xff272b31);
-        drawRect(guiLeft + 2, guiTop + 2, guiLeft + xSize - 2, guiTop + ySize - 2, 0xffc6c6c6);
-        for (Slot slot : rack.inventorySlots) {
-            int left = guiLeft + slot.xPos, top = guiTop + slot.yPos;
-            drawRect(left - 1, top - 1, left + 17, top + 17, 0xff51555b);
-            drawRect(left, top, left + 16, top + 16, 0xff8b8b8b);
-        }
+        AePanel.frame(guiLeft, guiTop, xSize, ySize);
+        AePanel.slots(guiLeft, guiTop, rack.inventorySlots);
     }
 
     @Override

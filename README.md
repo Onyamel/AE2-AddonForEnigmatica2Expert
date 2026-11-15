@@ -2,15 +2,15 @@
 
 **English** | [Русский](README-RU.md)
 
-An unofficial Applied Energistics 2 expansion for **Enigmatica 2: Expert 1.93a**, Minecraft **1.12.2**. Version **2.0.0** adds 94 items and blocks, with 94 crafting recipes designed for E2E progression. In-game language: **English and Russian**, selected through Minecraft's language settings.
+An unofficial Applied Energistics 2 expansion for **Enigmatica 2: Expert 1.93a**, Minecraft **1.12.2**. Version **3.0.0** adds 103 items and blocks, with 166 crafting recipes designed for E2E progression. In-game language: **English and Russian**, selected through Minecraft's language settings.
 
 ## Installation
 
-1. Download `ae2expert-2.0.0.jar` from **Releases**.
+1. Download `ae2expert-3.0.0.jar` from **Releases**.
 2. Close Minecraft and back up your world.
 3. Open your instance's Minecraft folder in Prism Launcher, then open `mods`.
 4. Replace the previous addon jar. Keep only one version installed.
-5. Install version **2.0.0** on the server and every client.
+5. Install version **3.0.0** on the server and every client.
 
 Players do not need the source archive, JDK, Gradle, a separate resource pack, or `runtime-checks.jar`. The required mods are already part of the tested E2E setup. See [dependencies](libs/README.md) for exact versions.
 
@@ -26,28 +26,41 @@ Players do not need the source archive, JDK, Gradle, a separate resource pack, o
 | Cables | 32 / 64 / 128 / 256 channels; networks above eight channels need a controller |
 | Fluix Crystal Chamber | Charged Certus Quartz + Redstone + Nether Quartz → 2 Fluix Crystals in 100 ticks, using 4000 RF; JEI/HEI recipe integration |
 | RF ↔ EU Converter | Switchable direction, base rate 4 RF/EU, 10% loss in each direction |
-| Crafting storage | 13 new tiers: 128k, 256k, 512k, 1M, 2M, 4M, 8M, 16M, 32M, 64M, 128M, 256M and 512M. Extends the stock 1k–64k line. |
+| Crafting storage | 13 new tiers: 128k, 256k, 512k, 1024k, 2048k, 4096k, 8192k, 16384k, 32768k, 65536k, 131072k, 262144k and 524288k. Extends the stock 1k–64k line. |
 | Crafting coprocessors | ×9, ×81 and ×729. They increase the operation budget within one AE2 crafting job. |
-| Crafting CPU Rack | 18 slots for stock or addon storage blocks and coprocessors, up to 64 matching blocks per slot and 576 GiB of memory. Sneak-right-click to configure. Editing is locked while the CPU is busy or returning items. |
+| Crafting CPU Combiner | 18 slots for stock or addon storage blocks and coprocessors, up to 64 matching blocks per slot and 576 GiB of memory. Sneak-right-click to configure. Editing is locked while the CPU is busy or returning items. |
 | Wireless ME network | One hub, four relays (32, 64, 128 and 256 channels) and an ME Network Linker. Up to 128 pairings and 256 channels in total per hub. |
 | Wireless management | Connection count on hover, named links, online status and individually selectable translucent lines. Several lines can be visible at once. |
 
 ### Integration and reliability
 
 - Wireless links use the same AE2 network as the hub. Both ends must be loaded in the same dimension. Pairings and names persist. Line visibility is local to each player for the current session.
-- Dense cables accept crafting terminals, interfaces and buses. Tooltips and the AE2 Stuff visualizer report full counts up to 256. Cable colors identify tiers. Assemblers retain their transparent casings and activity effects, with tier markings.
+- Dense cables accept crafting terminals, interfaces and buses. Tooltips and the AE2 Stuff visualizer report full counts up to 256. Cable colors identify tiers. Each accelerated assembler has a distinct casing texture. Extended assemblers have open frames.
 - Fluid and gas cell filters work in the Cell Workbench. Gas cells use ExtraCells and Mekanism. Damaged storage records are retained in NBT and flagged in the tooltip so a cell upgrade cannot discard them.
 - Processing ingredients and stock recovery are kept separate in ME interfaces. Pending items survive reloads. Accelerated assembler queues preserve pending work, and the Fluix Crystal Chamber output supports automated extraction.
-- The rack opens on Shift + right-click with either an empty hand or an item. Carry On is blocked from picking it up. Active racks still offer the normal AE2 job screen on right-click.
+- The combiner opens on Shift + right-click with either an empty hand or an item. Carry On is blocked from picking it up. An active combiner offers the normal AE2 job screen on right-click.
 - Recipes follow E2E progression. JEI/HEI includes the chamber recipe alongside the water method. Names, tooltips and menus are available in English and Russian.
 
 Gas cells use ExtraCells and Mekanism. The converter supports Forge Energy, classic RF and IC2 EnergyNet, with up to 256 EU of conversion input per tick.
 
-## Version 2.0.0
+## Version 3.0.0
 
-Crafting storage from 128k to 512 MiB, ×9 / ×81 / ×729 coprocessors, and a rack with 18 slots of up to 64 modules each. Sneak and right-click the rack to edit its modules. Coprocessors raise the operation budget of one job. Concurrent independent orders require separate CPUs.
+Crafting storage from 128k to 512 MiB, ×9 / ×81 / ×729 coprocessors, and a combiner with 18 slots of up to 64 modules each. Sneak and right-click the combiner to edit its modules. Coprocessors raise the operation budget of one job. Concurrent independent orders require separate CPUs.
 
-[Changelog](CHANGELOG-2.0.0.md) · [Design](docs/CRAFTING-CPU-DESIGN.md) · [Validation](docs/VALIDATION-2.0.0.md)
+[Changelog](CHANGELOG-3.0.0.md) · [Design](docs/CRAFTING-CPU-DESIGN.md) · [Validation](docs/VALIDATION-3.0.0.md)
+
+![Fluix Chamber recipe in JEI](docs/images/fluix-chamber-jei.png)
+
+![256-channel network visualizer](docs/images/network-256.png)
+
+## Extended Crafting
+
+- Four pattern terminals for the 3×3, 5×5, 7×7 and 9×9 crafting tables. Craft each terminal with the corresponding Extended Crafting table and an AE2 Pattern Terminal.
+- Four molecular assemblers. Craft each with the corresponding table and a standard AE2 Molecular Assembler. A higher-tier assembler can run a lower-tier pattern at its original grid size.
+- Under a steady queue with enough power and space for the output, an extended assembler completes eight crafts in 10 game ticks. A single craft takes two ticks.
+- Use **+** in JEI/HEI to enter a supported recipe and inspect its output preview. Encoded patterns list their inputs and outputs in the tooltip.
+- In a terminal, copy items from the cursor into the recipe grid, keep a blank AE2 pattern in your inventory and select **Encode**. To edit a crafting pattern, hold it in your main hand and select **Load held**. Put the encoded pattern in an ME Interface next to a compatible assembler.
+- In **Processing** mode, middle-click a filled input or output slot to set its count from 1 to 64. Processing patterns go to the interface beside the machine that performs the recipe.
 
 ## Wireless links
 
@@ -63,9 +76,9 @@ The new interface blocks have their own GUI. Integration with AE2's Interface Te
 
 Use the converter's GUI button or sneak-right-click to switch direction. RF is accepted in RF→EU mode and extracted in EU→RF mode. Buffers survive chunk unloads; sub-RF energy remains in the EU buffer.
 
-Cable color identifies the tier, rather than an isolated AE2 color network. Standard recoloring is disabled. Indicators show the proportion of capacity in use; tooltips and the visualizer show exact counts up to 256. Dense cables accept terminals, interfaces and buses. Native channel capacity and P2P behavior are preserved.
+Each cable tier has a slim model and 16 craftable cosmetic colors. Indicators show the proportion of capacity in use; tooltips and the visualizer show exact counts up to 256. Dense cables accept terminals, interfaces and buses. Native channel capacity and P2P behavior are preserved.
 
-Cell upgrades require empty input cells with upgrade cards removed. Damaged entries are preserved separately in NBT and flagged in the tooltip; affected cells cannot be upgraded through crafting. Addon cells reject direct insertion of storage cells. Higher tiers use ExtraCells housings and E2E iridium plates.
+Cell upgrades require empty input cells with upgrade cards removed. Damaged entries are preserved separately in NBT and flagged in the tooltip; affected cells cannot be upgraded through crafting. Addon cells reject direct insertion of storage cells. Higher tiers use ExtraCells housings.
 
 ## Development and support
 

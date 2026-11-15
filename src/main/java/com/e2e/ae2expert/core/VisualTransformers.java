@@ -50,6 +50,7 @@ final class VisualTransformers {
                 if (call.owner.equals(VLINK)) { linkMethod = true; if (call.name.equals("<init>")) readsLink = true; }
             }
             boolean readCount = false, writeCount = false;
+            boolean cableList = false;
             for (AbstractInsnNode insn : method.instructions.toArray()) {
                 if (probe && insn instanceof IntInsnNode && (((IntInsnNode)insn).operand == 32 || ((IntInsnNode)insn).operand == 8)) {
                     InsnList replacement = new InsnList(); replacement.add(new VarInsnNode(Opcodes.ALOAD,1));
@@ -84,6 +85,18 @@ final class VisualTransformers {
                 }
                 if (!(insn instanceof MethodInsnNode)) continue;
                 MethodInsnNode call=(MethodInsnNode)insn;
+                if (cable && (method.name.equals("getQuads") || method.name.equals("func_188616_a"))
+                        && !cableList && call.name.equals("addAll") && call.desc.equals("(Ljava/util/Collection;)Z")) {
+                    InsnList hook = new InsnList();
+                    hook.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                    hook.add(new FieldInsnNode(Opcodes.GETFIELD, type.name, "cableBuilder", "Lappeng/client/render/cablebus/CableBuilder;"));
+                    hook.add(new VarInsnNode(Opcodes.ALOAD, 5));
+                    hook.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "appeng/client/render/cablebus/ExpertThinCable", "replace",
+                            "(Ljava/util/List;Lappeng/client/render/cablebus/CableBuilder;Lappeng/client/render/cablebus/CableBusRenderState;)Ljava/util/List;", false));
+                    method.instructions.insertBefore(call, hook);
+                    cableList = true;
+                    changes++;
+                }
                 if(probe && call.owner.equals("net/minecraft/nbt/NBTTagCompound") && call.desc.equals("(Ljava/lang/String;)B")) {
                     call.name=call.name.startsWith("func_")?"func_74762_e":"getInteger";call.desc="(Ljava/lang/String;)I";changes++;
                 }

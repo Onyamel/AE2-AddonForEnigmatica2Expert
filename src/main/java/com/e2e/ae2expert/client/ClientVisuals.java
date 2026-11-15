@@ -25,6 +25,8 @@ public final class ClientVisuals {
         Object part=((IPartHost)tile).getPart(AEPartLocation.INTERNAL);
         if(!(part instanceof PartExpertCable))return original;
         int accent=VisualPalette.cable(((PartExpertCable)part).getChannelCapacity());
+        int paint = ((PartExpertCable)part).getPaint();
+        if (paint >= 0) accent = paint;
         List<BakedQuad> result=new ArrayList<>(original.size());
         for(BakedQuad quad:original) {
             int[] copy=null;

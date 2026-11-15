@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "ae2expert:table_terminal_elite"
+    },
+    "facing=south": {
+      "model": "ae2expert:table_terminal_elite",
+      "y": 180
+    },
+    "facing=east": {
+      "model": "ae2expert:table_terminal_elite",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "ae2expert:table_terminal_elite",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "ae2expert:table_terminal_elite",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "ae2expert:table_terminal_elite",
+      "x": 90
+    }
+  }
+}

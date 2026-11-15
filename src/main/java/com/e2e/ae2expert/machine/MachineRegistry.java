@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public final class MachineRegistry {
     public static final Block FLUIX_CHAMBER = new BlockMachine("fluix_chamber", false);
-    public static final Block RF_EU_CONVERTER = new BlockMachine("rf_eu_converter", true);
+    public static final Block RF_EU_CONVERTER = new BlockRfEuConverter();
     public static final List<Block> BLOCKS = Arrays.asList(FLUIX_CHAMBER, RF_EU_CONVERTER);
     private MachineRegistry() { }
     public static void registerBlocks(RegistryEvent.Register<Block> event) {

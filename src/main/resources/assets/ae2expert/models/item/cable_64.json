@@ -1,6 +1,7 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "appliedenergistics2:parts/cable/core/dense_smart/gray"
+    "layer0": "ae2expert:items/cable_64",
+    "layer1": "ae2expert:items/cable_64_marks"
   }
 }

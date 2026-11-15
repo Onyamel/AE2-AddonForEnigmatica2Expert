@@ -41,7 +41,7 @@ public abstract class TileExpertAssembler extends TileMolecularAssembler {
     }
 
     @Override public boolean pushPattern(ICraftingPatternDetails recipe, InventoryCrafting table, EnumFacing side) {
-        if (recipe == null || !recipe.isCraftable() || !super.acceptsPlans()
+        if (recipe == null || recipe instanceof com.e2e.ae2expert.extended.PatternMatrix.Sized || !recipe.isCraftable() || !super.acceptsPlans()
                 || queued.size() >= getSpeedMultiplier()) return false;
         if (queued.isEmpty() && super.pushPattern(recipe, table, side)) return true;
         queued.addLast(new PendingCraft(recipe, table, side));
@@ -63,7 +63,7 @@ public abstract class TileExpertAssembler extends TileMolecularAssembler {
         try { if (next.recipe == null) next.recipe = ((ICraftingPatternItem) next.pattern.getItem()).getPatternForItem(next.pattern, world); }
         catch (RuntimeException invalid) { return; }
         ICraftingPatternDetails recipe = next.recipe;
-        if (recipe == null || !recipe.isCraftable()) return;
+        if (recipe == null || recipe instanceof com.e2e.ae2expert.extended.PatternMatrix.Sized || !recipe.isCraftable()) return;
         InventoryCrafting table = new InventoryCrafting(new ContainerNull(), 3, 3);
         for (int slot = 0; slot < 9; slot++) table.setInventorySlotContents(slot, next.inputs[slot].copy());
         if (super.pushPattern(recipe, table, next.side)) {

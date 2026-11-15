@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "extendedcrafting"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "extendedcrafting:table_basic"
+    },
+    {
+      "item": "appliedenergistics2:part",
+      "data": 340
+    }
+  ],
+  "result": {
+    "item": "ae2expert:table_terminal_basic"
+  }
+}

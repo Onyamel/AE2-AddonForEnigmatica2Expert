@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "normal": {
+      "model": "ae2expert:table_assembler_advanced"
+    }
+  }
+}

@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import com.e2e.ae2expert.CommonProxy;
 import com.e2e.ae2expert.ModItems;
 import com.e2e.ae2expert.assembler.AssemblerRegistry;
+import com.e2e.ae2expert.extended.TableRegistry;
 import com.e2e.ae2expert.assembler.BlockExpertAssembler;
 import com.e2e.ae2expert.bus.BusModels;
 
@@ -18,6 +19,9 @@ import com.e2e.ae2expert.bus.BusModels;
  * Client side proxy: item and part model registration.
  */
 public class ClientProxy extends CommonProxy {
+    @Override public Object createTableGui(com.e2e.ae2expert.extended.ContainerTableTerminal container) {
+        return new GuiTableTerminal(container);
+    }
 
     @Override public Object createGui(int id, net.minecraft.entity.player.EntityPlayer player, net.minecraft.tileentity.TileEntity tile) {
         if (id == 0 && (tile instanceof com.e2e.ae2expert.machine.TileFluixChamber || tile instanceof com.e2e.ae2expert.machine.TileRfEuConverter))
@@ -38,14 +42,16 @@ public class ClientProxy extends CommonProxy {
         super.preInit(event);
         // Part models must be known before the model bakery runs.
         BusModels.register();
+        net.minecraftforge.fml.client.registry.RenderingRegistry.registerEntityRenderingHandler(
+                com.e2e.ae2expert.encounter.Visitor.class, VisitorRenderer::new);
     }
 
     @Override
     public void init(FMLInitializationEvent event) {
         super.init(event);
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new WirelessOverlay());
+        net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new PatternQuantityGui.InputHandler());
         java.util.List<Block> blocks=new java.util.ArrayList<>();
-        blocks.addAll(AssemblerRegistry.BLOCKS.values());
         blocks.addAll(com.e2e.ae2expert.interfacepkg.InterfaceRegistry.BLOCKS);
         blocks.addAll(com.e2e.ae2expert.machine.MachineRegistry.BLOCKS);
         net.minecraft.client.Minecraft mc=net.minecraft.client.Minecraft.getMinecraft();
@@ -55,7 +61,7 @@ public class ClientProxy extends CommonProxy {
             mc.getItemColors().registerItemColorHandler((stack,tint)->VisualPalette.color(name,tint),Item.getItemFromBlock(block));
         }
         for(com.e2e.ae2expert.item.ItemExpertCable item:ModItems.cables.values())
-            mc.getItemColors().registerItemColorHandler((stack,tint)->VisualPalette.cable(item.getChannelCapacity()),item);
+            mc.getItemColors().registerItemColorHandler((stack,tint)->tint == 0 ? item.paintColor(stack.getMetadata(), VisualPalette.cable(item.getChannelCapacity())) : 0xFFFFFF,item);
     }
 
     @Override
@@ -78,6 +84,13 @@ public class ClientProxy extends CommonProxy {
 
     /** Registers a simple inventory model for every item and block item of the addon. */
     public static void registerItemModels(ModelRegistryEvent event) {
+        if (TableRegistry.enabled()) {
+            TableRegistry.ASSEMBLERS.forEach(ClientProxy::registerBlockItemModel);
+            TableRegistry.TERMINALS.forEach(ClientProxy::registerBlockItemModel);
+            Item pattern = TableRegistry.PATTERN;
+            ModelLoader.setCustomModelResourceLocation(pattern, 0,
+                    new net.minecraft.client.renderer.block.model.ModelResourceLocation(pattern.getRegistryName(), "inventory"));
+        }
         for (Item item : ModItems.all()) {
             if (item.getRegistryName() == null) {
                 continue;
@@ -86,6 +99,11 @@ public class ClientProxy extends CommonProxy {
                     new net.minecraft.client.renderer.block.model.ModelResourceLocation(item.getRegistryName(), "inventory"));
         }
 
+        for (Item item : ModItems.cables.values()) {
+            net.minecraft.client.renderer.block.model.ModelResourceLocation model =
+                    new net.minecraft.client.renderer.block.model.ModelResourceLocation(item.getRegistryName(), "inventory");
+            for (int meta = 1; meta <= 16; meta++) ModelLoader.setCustomModelResourceLocation(item, meta, model);
+        }
         for (Block block : com.e2e.ae2expert.wireless.WirelessRegistry.BLOCKS) registerBlockItemModel(block);
         Item linker = com.e2e.ae2expert.wireless.WirelessRegistry.LINKER;
         ModelLoader.setCustomModelResourceLocation(linker, 0,

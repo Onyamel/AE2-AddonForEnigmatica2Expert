@@ -16,6 +16,16 @@ public final class ExpertJeiPlugin implements IModPlugin {
         registry.addRecipeCategories(new FluixChamberCategory(registry.getJeiHelpers().getGuiHelper()));
     }
     @Override public void register(IModRegistry registry) {
+        if (com.e2e.ae2expert.extended.TableRegistry.enabled()) {
+            mezz.jei.api.recipe.transfer.IRecipeTransferRegistry transfer = registry.getRecipeTransferRegistry();
+            mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper errors =
+                    registry.getJeiHelpers().recipeTransferHandlerHelper();
+            transfer.addRecipeTransferHandler(new TableTransferHandler(3, errors), "minecraft.crafting");
+            for (int width : new int[]{3, 5, 7, 9}) {
+                transfer.addRecipeTransferHandler(new TableTransferHandler(width, errors),
+                        "extendedcrafting:table_crafting_" + width + "x" + width);
+            }
+        }
         registry.handleRecipes(FluixChamberRecipe.class,recipe->new FluixChamberWrapper(recipe),FluixChamberRecipe.UID);
         registry.addRecipes(Collections.singletonList(FluixChamberRecipe.INSTANCE),FluixChamberRecipe.UID);
         registry.addRecipeCatalyst(new ItemStack(MachineRegistry.FLUIX_CHAMBER),FluixChamberRecipe.UID);

@@ -38,9 +38,8 @@ public class TileFluixChamber extends TileEntity implements ITickable, cofh.reds
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == SLOT_CERTUS ? isChargedCertus(stack)
-                    : slot == SLOT_REDSTONE ? isRedstone(stack)
-                    : slot == SLOT_QUARTZ && isNetherQuartz(stack);
+            return slot >= 0 && slot < SLOT_OUTPUT
+                    && (isChargedCertus(stack) || isRedstone(stack) || isNetherQuartz(stack));
         }
     };
 
@@ -51,6 +50,15 @@ public class TileFluixChamber extends TileEntity implements ITickable, cofh.reds
         @Override public int getSlots() { return inventory.getSlots(); }
         @Override public ItemStack getStackInSlot(int slot) { return inventory.getStackInSlot(slot); }
         @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (slot >= 0 && slot < SLOT_OUTPUT && inventory.getStackInSlot(slot).isEmpty()) {
+                int empty = 0;
+                int missing = 0;
+                for (int i = 0; i < SLOT_OUTPUT; i++) {
+                    if (inventory.getStackInSlot(i).isEmpty()) empty++;
+                    if (!FluixChamberRecipe.accepts(i, stack) && findIngredient(i) < 0) missing++;
+                }
+                if (empty <= missing) return stack;
+            }
             return inventory.insertItem(slot, stack, simulate);
         }
         @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
@@ -107,15 +115,16 @@ public class TileFluixChamber extends TileEntity implements ITickable, cofh.reds
         this.markDirty();
     }
 
+    private int findIngredient(int ingredient) {
+        for (int slot = 0; slot < SLOT_OUTPUT; slot++) {
+            if (FluixChamberRecipe.accepts(ingredient, inventory.getStackInSlot(slot))) return slot;
+        }
+        return -1;
+    }
+
     private boolean canCraft() {
-        if (!isChargedCertus(this.inventory.getStackInSlot(SLOT_CERTUS))) {
-            return false;
-        }
-        if (!isRedstone(this.inventory.getStackInSlot(SLOT_REDSTONE))) {
-            return false;
-        }
-        if (!isNetherQuartz(this.inventory.getStackInSlot(SLOT_QUARTZ))) {
-            return false;
+        for (int ingredient = 0; ingredient < SLOT_OUTPUT; ingredient++) {
+            if (findIngredient(ingredient) < 0) return false;
         }
         if (ModMachineItems.fluixCrystal().isEmpty()) return false;
         ItemStack output = this.inventory.getStackInSlot(SLOT_OUTPUT);
@@ -128,9 +137,9 @@ public class TileFluixChamber extends TileEntity implements ITickable, cofh.reds
     }
 
     private void craft() {
-        this.inventory.extractItem(SLOT_CERTUS, 1, false);
-        this.inventory.extractItem(SLOT_REDSTONE, 1, false);
-        this.inventory.extractItem(SLOT_QUARTZ, 1, false);
+        for (int ingredient = 0; ingredient < SLOT_OUTPUT; ingredient++) {
+            inventory.extractItem(findIngredient(ingredient), 1, false);
+        }
 
         ItemStack result = ModMachineItems.fluixCrystal();
         ItemStack output = this.inventory.getStackInSlot(SLOT_OUTPUT);

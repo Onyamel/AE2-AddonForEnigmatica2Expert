@@ -39,6 +39,12 @@ public final class RuntimeIntegrationChecksCpu {
     private static CraftingCPUCluster cpu;
     private static Future<ICraftingJob> plan;
     private static ICraftingLink job;
+    private static Future<ICraftingJob> extendedPlan;
+    private static ICraftingLink extendedJob;
+    private static TileExpertInterface extendedProvider;
+    private static ItemStack extendedOutput;
+    private static java.util.List<?> tableRecipes;
+    private static Object extendedRecipe;
     private static int passed;
 
     private static void require(boolean condition, String name) {
@@ -112,8 +118,15 @@ public final class RuntimeIntegrationChecksCpu {
         TileDrive drive = (TileDrive) world.getTileEntity(PROCESSING.west());
         ItemStack cell = new ItemStack(ModItems.itemCells.get(CellTier.K16));
         IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
-        AEApi.instance().registries().cell().getCellInventory(cell, null, channel)
-                .injectItems(channel.createStack(new ItemStack(Items.REDSTONE, 64)), Actionable.MODULATE, null);
+        appeng.api.storage.ICellInventoryHandler<IAEItemStack> contents =
+                AEApi.instance().registries().cell().getCellInventory(cell, null, channel);
+        contents.injectItems(channel.createStack(new ItemStack(Items.REDSTONE, 64)), Actionable.MODULATE, null);
+        if (com.e2e.ae2expert.extended.TableRegistry.enabled()) {
+            IAEItemStack feathers = channel.createStack(new ItemStack(Items.FEATHER));
+            feathers.setStackSize(81);
+            require(contents.injectItems(feathers, Actionable.MODULATE, null) == null,
+                    "9×9 ingredients stocked before installing the cell");
+        }
         drive.getInternalInventory().insertItem(0, cell, false);
         ItemStack pattern = AEApi.instance().definitions().items().encodedPattern().maybeStack(1).get();
         NBTTagCompound tag = new NBTTagCompound();
@@ -186,7 +199,157 @@ public final class RuntimeIntegrationChecksCpu {
         }
     }
 
+    private static void setupExtended(WorldServer world) throws Exception {
+        Class<?> managerType = Class.forName("com.blakebr0.extendedcrafting.crafting.table.TableRecipeManager");
+        Object manager = managerType.getMethod("getInstance").invoke(null);
+        tableRecipes = (java.util.List<?>) managerType.getMethod("getRecipes").invoke(manager);
+        Object[] recipe = new Object[11];
+        java.util.Arrays.fill(recipe, 0, 9, "XXXXXXXXX");
+        recipe[9] = 'X';
+        recipe[10] = new ItemStack(Items.FEATHER);
+        extendedOutput = new ItemStack(Items.CHAINMAIL_BOOTS);
+        extendedRecipe = managerType.getMethod("addShaped", int.class, ItemStack.class, Object[].class)
+                .invoke(manager, 4, extendedOutput, recipe);
+        net.minecraft.inventory.InventoryCrafting matrix = new net.minecraft.inventory.InventoryCrafting(
+                new appeng.container.ContainerNull(), 9, 9);
+        for (int i = 0; i < 81; i++) matrix.setInventorySlotContents(i, new ItemStack(Items.FEATHER));
+        ItemStack encoded = com.e2e.ae2expert.extended.TableRegistry.PATTERN.encode(matrix, world);
+        require(!encoded.isEmpty(), "9×9 recipe encodes for native crafting CPU");
+        BlockPos pos = PROCESSING.west().up();
+        place(world, pos, InterfaceRegistry.BLOCKS.get(0));
+        place(world, pos.up(), com.e2e.ae2expert.extended.TableRegistry.ASSEMBLERS.get(3));
+        extendedProvider = (TileExpertInterface) world.getTileEntity(pos);
+        extendedProvider.patterns.setStackInSlot(0, encoded);
+
+    }
+
+    private static void tickExtended(WorldServer world, int ticks) throws Exception {
+        if (!com.e2e.ae2expert.extended.TableRegistry.enabled()) return;
+        if (ticks == 440) setupExtended(world);
+        if (ticks == 490) {
+            IGrid grid = rack.getProxy().getGrid();
+            IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+            extendedPlan = grid.<ICraftingGrid>getCache(ICraftingGrid.class).beginCraftingJob(
+                    world, grid, new MachineSource(extendedProvider), channel.createStack(extendedOutput), null);
+        }
+        if (extendedPlan != null && extendedPlan.isDone() && extendedJob == null) {
+            ICraftingJob planned = extendedPlan.get();
+            require(!planned.isSimulation(), "native planner resolves all 81 positions");
+            extendedJob = rack.getProxy().getGrid().<ICraftingGrid>getCache(ICraftingGrid.class)
+                    .submitJob(planned, null, (CraftingCPUCluster) rack.getCluster(), true, new MachineSource(extendedProvider));
+            require(extendedJob != null && ((CraftingCPUCluster) rack.getCluster()).isBusy(), "native CPU accepts the 9×9 job");
+        }
+        if (ticks == 680) {
+            try {
+                require(extendedJob != null && !extendedJob.isCanceled() && !((CraftingCPUCluster) rack.getCluster()).isBusy(),
+                        "9×9 job drains the CPU queue without cancellation");
+                IItemStorageChannel channel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
+                IAEItemStack result = rack.getProxy().getStorage().getInventory(channel).getStorageList()
+                        .findPrecise(channel.createStack(extendedOutput));
+                require(result != null && result.getStackSize() == 1, "9×9 output reaches ME storage exactly once");
+                System.out.println("[AE2ExpertCPU] EXTENDED_DONE");
+            } finally {
+                if (tableRecipes != null) tableRecipes.remove(extendedRecipe);
+            }
+        }
+    }
+    private static final BlockPos SPEED_STOCK = new BlockPos(5, 100, 7);
+    private static final BlockPos SPEED_EXPERT = SPEED_STOCK.east(4);
+
+    private static void benchmark(WorldServer world, int ticks) throws Exception {
+        if (!com.e2e.ae2expert.extended.TableRegistry.enabled()) return;
+        if (ticks == 690) {
+            for (BlockPos pos : new BlockPos[]{SPEED_STOCK, SPEED_EXPERT}) {
+                place(world, pos.down(), Blocks.CHEST);
+                place(world, pos.east(), AE2.controller().maybeBlock().get());
+                place(world, pos.east(2), AE2.energyCellCreative().maybeBlock().get());
+            }
+            place(world, SPEED_STOCK, AE2.molecularAssembler().maybeBlock().get());
+            place(world, SPEED_EXPERT, com.e2e.ae2expert.extended.TableRegistry.ASSEMBLERS.get(0));
+        }
+        if (ticks != 740) return;
+        appeng.tile.crafting.TileMolecularAssembler stock = (appeng.tile.crafting.TileMolecularAssembler) world.getTileEntity(SPEED_STOCK);
+        com.e2e.ae2expert.extended.TileTableAssembler expert =
+                (com.e2e.ae2expert.extended.TileTableAssembler) world.getTileEntity(SPEED_EXPERT);
+        net.minecraft.inventory.InventoryCrafting grid = new net.minecraft.inventory.InventoryCrafting(
+                new appeng.container.ContainerNull(), 3, 3);
+        grid.setInventorySlotContents(0, new ItemStack(Items.IRON_INGOT));
+        net.minecraft.item.crafting.IRecipe recipe = net.minecraft.item.crafting.CraftingManager.findMatchingRecipe(grid, world);
+        if (recipe == null) {
+            grid.clear();
+            grid.setInventorySlotContents(0, new ItemStack(Blocks.PLANKS));
+            grid.setInventorySlotContents(3, new ItemStack(Blocks.PLANKS));
+            recipe = net.minecraft.item.crafting.CraftingManager.findMatchingRecipe(grid, world);
+        }
+        require(recipe != null, "baseline crafting recipe");
+        ItemStack result = recipe.getCraftingResult(grid);
+        ItemStack ordinary = AEApi.instance().definitions().items().encodedPattern().maybeStack(1).get();
+        NBTTagCompound tag = new NBTTagCompound();
+        net.minecraft.nbt.NBTTagList in = new net.minecraft.nbt.NBTTagList(), out = new net.minecraft.nbt.NBTTagList();
+        for (int slot = 0; slot < 9; slot++) in.appendTag(grid.getStackInSlot(slot).isEmpty() ? new NBTTagCompound()
+                : grid.getStackInSlot(slot).writeToNBT(new NBTTagCompound()));
+        out.appendTag(result.writeToNBT(new NBTTagCompound()));
+        tag.setTag("in", in);
+        tag.setTag("out", out);
+        tag.setBoolean("crafting", true);
+        ordinary.setTagCompound(tag);
+        ItemStack encoded = com.e2e.ae2expert.extended.TableRegistry.PATTERN.encode(grid, world);
+        require(!encoded.isEmpty(), "extended crafting accepts the baseline recipe");
+        appeng.api.networking.crafting.ICraftingPatternDetails newPlan =
+                com.e2e.ae2expert.extended.TableRegistry.PATTERN.getPatternForItem(encoded, world);
+        require(ItemStack.areItemStacksEqual(result, newPlan.getOutput(grid, world)), "benchmark outputs match");
+        net.minecraft.inventory.IInventory stockOut = (net.minecraft.inventory.IInventory) world.getTileEntity(SPEED_STOCK.down());
+        net.minecraft.inventory.IInventory expertOut = (net.minecraft.inventory.IInventory) world.getTileEntity(SPEED_EXPERT.down());
+        stockOut.clear();
+        expertOut.clear();
+        require(stock.pushPattern(new appeng.helpers.PatternHelper(ordinary, world), grid, net.minecraft.util.EnumFacing.DOWN)
+                && expert.pushPattern(newPlan, grid, net.minecraft.util.EnumFacing.DOWN), "both assemblers accept the same input");
+        int ordinaryTicks = 0, extendedTicks = 0;
+        while (stockOut.isEmpty() && ordinaryTicks < 40) {
+            stock.tickingRequest(stock.getProxy().getNode(), 1);
+            ordinaryTicks++;
+        }
+        while (expertOut.isEmpty() && extendedTicks < 40) {
+            expert.update();
+            extendedTicks++;
+        }
+        require(!stockOut.isEmpty() && !expertOut.isEmpty(), "both assemblers return their output, stock="
+                + ordinaryTicks + ", extended=" + extendedTicks + ", stock powered=" + stock.getProxy().isActive()
+                + ", extended powered=" + expert.getProxy().isActive());
+        System.out.println("[AE2ExpertSpeed] RESULT stock=" + ordinaryTicks + " extended=" + extendedTicks
+                + " ratio=" + (double) ordinaryTicks / extendedTicks);
+        stockOut.clear();
+        expertOut.clear();
+        for (int i = 0; i < 8; i++)
+            require(expert.pushPattern(newPlan, grid, net.minecraft.util.EnumFacing.DOWN), "queue accepts craft " + (i + 1));
+        NBTTagCompound saved = expert.writeToNBT(new NBTTagCompound());
+        com.e2e.ae2expert.extended.TileTableAssembler restored =
+                new com.e2e.ae2expert.extended.TileTableAssembler();
+        restored.readFromNBT(saved);
+        require(restored.writeToNBT(new NBTTagCompound()).getTagList("queued", 10).tagCount() == 7,
+                "queue restores seven waiting crafts");
+        int batchTicks = 0;
+        int targetCount = 8 * result.getCount();
+        while (batchTicks < 20 && inventoryCount(expertOut) < targetCount) {
+            expert.update();
+            batchTicks++;
+        }
+        require(inventoryCount(expertOut) == targetCount, "eight queued crafts deliver exact output count");
+        require(ordinaryTicks * 8 == batchTicks * 8, "eight-craft throughput is exactly eight times the stock baseline");
+        System.out.println("[AE2ExpertSpeed] BATCH stockBaseline=" + (ordinaryTicks * 8)
+                + " extended=" + batchTicks + " crafts=8");
+
+    }
+
+    private static int inventoryCount(net.minecraft.inventory.IInventory inventory) {
+        int count = 0;
+        for (int i = 0; i < inventory.getSizeInventory(); i++) count += inventory.getStackInSlot(i).getCount();
+        return count;
+    }
+
     public static void tick(WorldServer world, EntityPlayerMP player, int ticks) throws Exception {
+        tickExtended(world, ticks);
+        benchmark(world, ticks);
         if (ticks == 100) {
             cpu = (CraftingCPUCluster) rack.getCluster();
             require(cpu != null && cpu.isActive(), "formed powered mixed CPU");

@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 
 public class GuiHandler implements IGuiHandler {
     @Override public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+        if (id == 4) return com.e2e.ae2expert.extended.ContainerTableTerminal.open(player, new BlockPos(x, y, z));
         TileEntity tile = world.getTileEntity(new BlockPos(x, y, z));
         if (id == 0 && (tile instanceof TileFluixChamber || tile instanceof TileRfEuConverter)) return new ContainerMachine(player, tile);
         if (id == 1 && tile instanceof TileExpertInterface && ((TileExpertInterface) tile).canUse(player))
@@ -28,6 +29,11 @@ public class GuiHandler implements IGuiHandler {
         return null;
     }
     @Override public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+        if (id == 4) {
+            Object container = com.e2e.ae2expert.extended.ContainerTableTerminal.open(player, new BlockPos(x, y, z));
+            return container == null ? null : AE2ExpertAddon.proxy.createTableGui(
+                    (com.e2e.ae2expert.extended.ContainerTableTerminal) container);
+        }
         return AE2ExpertAddon.proxy.createGui(id, player, world.getTileEntity(new BlockPos(x, y, z)));
     }
 }

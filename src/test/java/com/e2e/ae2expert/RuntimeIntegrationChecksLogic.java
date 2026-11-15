@@ -158,7 +158,7 @@ public final class RuntimeIntegrationChecksLogic {
         if(tick==120) {
             IItemHandler external=automatedChamber.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY,EnumFacing.NORTH);
             require(external.insertItem(0,ModMachineItems.ae2Material(1,1),false).isEmpty(),"Камера принимает заряженный кварц через capability");
-            require(external.insertItem(1,new ItemStack(Items.REDSTONE),false).isEmpty()&&external.insertItem(2,new ItemStack(Items.QUARTZ),false).isEmpty(),"Камера принимает остальные ингредиенты");
+            require(external.insertItem(2,new ItemStack(Items.REDSTONE),false).isEmpty()&&external.insertItem(1,new ItemStack(Items.QUARTZ),false).isEmpty(),"Камера принимает редстоун и кварц в обратном порядке");
             require(external.extractItem(0,1,true).isEmpty()&&external.extractItem(1,1,false).isEmpty(),"Автоматика не извлекает входы камеры");
             for(int i=0;i<4;i++)automatedChamber.receiveEnergy(EnumFacing.UP,1000,false);
             List<ICraftingPatternDetails> options=new ArrayList<>();

@@ -13,7 +13,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public final class BlockMachine extends BlockContainer {
+public class BlockMachine extends BlockContainer {
     private final boolean converter;
 
     public BlockMachine(String name, boolean converter) {

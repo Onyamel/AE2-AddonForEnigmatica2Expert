@@ -30,6 +30,22 @@ public final class RegressionChecks {
         energy();
         storage();
         channels();
+        for (String target : Arrays.asList("appeng.crafting.CraftingTreeProcess",
+                "appeng.me.cluster.implementations.CraftingCPUCluster")) {
+            byte[] original = bytes(target);
+            byte[] modified = new ExpertTransformer().transform(target, target, original);
+            org.objectweb.asm.tree.ClassNode type = new org.objectweb.asm.tree.ClassNode();
+            new org.objectweb.asm.ClassReader(modified).accept(type, 0);
+            int calls = 0;
+            for (org.objectweb.asm.tree.MethodNode method : type.methods) {
+                for (org.objectweb.asm.tree.AbstractInsnNode insn : method.instructions.toArray()) {
+                    if (insn instanceof org.objectweb.asm.tree.MethodInsnNode
+                            && ((org.objectweb.asm.tree.MethodInsnNode) insn).owner
+                                    .equals("com/e2e/ae2expert/extended/PatternMatrix")) calls++;
+                }
+            }
+            check(calls == (target.endsWith("Cluster") ? 1 : 2), "Матрицы планировщика: " + target);
+        }
         checks += VisualRegressionChecks.run();
         System.out.println("Пройдено регрессионных проверок: " + checks);
     }

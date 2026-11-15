@@ -52,12 +52,179 @@ public final class RuntimeIntegrationChecks {
 
     @Mod.EventHandler public void init(FMLInitializationEvent event) { RuntimeIntegrationChecksLogic.register(); MinecraftForge.EVENT_BUS.register(this); }
 
+    private void checkExtendedCrafting(WorldServer world) throws Exception {
+        if (!com.e2e.ae2expert.extended.TableRegistry.enabled()) return;
+        for (String tier : new String[]{"basic", "advanced", "elite", "ultimate"}) {
+            for (String kind : new String[]{"terminal", "assembler"}) {
+                net.minecraft.util.ResourceLocation id = new net.minecraft.util.ResourceLocation(
+                        "ae2expert", "table_" + kind + "_" + tier);
+                check(net.minecraftforge.fml.common.registry.ForgeRegistries.RECIPES.containsKey(id),
+                        "Зарегистрирован рецепт " + id);
+                check(net.minecraftforge.fml.common.registry.ForgeRegistries.BLOCKS.containsKey(id),
+                        "Зарегистрирован блок " + id);
+            }
+        }
+        com.e2e.ae2expert.extended.ItemTablePattern pattern = com.e2e.ae2expert.extended.TableRegistry.PATTERN;
+        Class<?> managerType = Class.forName("com.blakebr0.extendedcrafting.crafting.table.TableRecipeManager");
+        Object manager = managerType.getMethod("getInstance").invoke(null);
+        java.lang.reflect.Method recipes = managerType.getMethod("getRecipes");
+        java.util.List<?> registered = (java.util.List<?>) recipes.invoke(manager);
+        java.lang.reflect.Method add = managerType.getMethod("addShaped", int.class, ItemStack.class, Object[].class);
+        BlockPos station = new BlockPos(0, 91, 110);
+        world.getChunk(station);
+        for (int tier = 1; tier <= 4; tier++) {
+            int width = 2 * tier + 1;
+            net.minecraft.inventory.InventoryCrafting matrix = new net.minecraft.inventory.InventoryCrafting(
+                    new appeng.container.ContainerNull(), width, width);
+            check(pattern.encode(matrix, world).isEmpty(), "Пустой шаблон " + width + "×" + width + " отклоняется");
+            Object[] shaped = new Object[width + 2];
+            char[] row = new char[width];
+            java.util.Arrays.fill(row, 'X');
+            java.util.Arrays.fill(shaped, 0, width, new String(row));
+            shaped[width] = 'X';
+            shaped[width + 1] = new ItemStack(net.minecraft.init.Items.CHAINMAIL_HELMET);
+            ItemStack expected = new ItemStack(net.minecraft.init.Items.CHAINMAIL_BOOTS);
+            Object temporaryRecipe = add.invoke(manager, tier, expected, shaped);
+            try {
+                for (int slot = 0; slot < width * width; slot++)
+                    matrix.setInventorySlotContents(slot, new ItemStack(net.minecraft.init.Items.CHAINMAIL_HELMET));
+                verifyExtendedTransfer(world, station.east(), tier, matrix, expected);
+                ItemStack encoded = pattern.encode(matrix, world);
+                check(!encoded.isEmpty(), "Кодирование точного рецепта " + width + "×" + width);
+                appeng.api.networking.crafting.ICraftingPatternDetails plan = pattern.getPatternForItem(encoded.copy(), world);
+                if (plan == null) {
+                    check(false, "Чтение расширенного шаблона " + width + "×" + width);
+                    continue;
+                }
+                check(plan.getInputs().length == width * width
+                                && plan.getCondensedInputs()[0].getStackSize() == width * width
+                                && ItemStack.areItemStacksEqual(expected, plan.getOutput(matrix, world)),
+                        "Позиции, количество и результат шаблона " + width + "×" + width);
+                check(!new appeng.tile.crafting.TileMolecularAssembler().pushPattern(plan, matrix, net.minecraft.util.EnumFacing.DOWN),
+                        "Обычный сборщик отклоняет расширенный шаблон " + width + "×" + width);
+                for (int target = 0; target < 4; target++) {
+                    world.setBlockToAir(station);
+                    net.minecraft.block.Block block = com.e2e.ae2expert.extended.TableRegistry.ASSEMBLERS.get(target);
+                    world.setBlockState(station, block.getDefaultState());
+                    com.e2e.ae2expert.extended.TileTableAssembler assembler =
+                            (com.e2e.ae2expert.extended.TileTableAssembler) world.getTileEntity(station);
+                    boolean accepted = assembler != null && assembler.pushPattern(plan, matrix, net.minecraft.util.EnumFacing.DOWN);
+                    check(accepted == (target >= tier - 1), "Сборщик тир " + (target + 1) + " и шаблон тир " + tier);
+                    if (accepted) {
+                        net.minecraft.nbt.NBTTagCompound saved = assembler.writeToNBT(new net.minecraft.nbt.NBTTagCompound());
+                        com.e2e.ae2expert.extended.TileTableAssembler restored = new com.e2e.ae2expert.extended.TileTableAssembler();
+                        restored.readFromNBT(saved);
+                        check(restored.writeToNBT(new net.minecraft.nbt.NBTTagCompound()).getTagList("grid", 10).tagCount() == width * width,
+                                "Сборщик восстанавливает сетку " + width + "×" + width);
+                    }
+                    world.setBlockToAir(station);
+                }
+            } finally {
+                registered.remove(temporaryRecipe);
+            }
+        }
+    }
+
+    private void verifyExtendedTransfer(WorldServer world, BlockPos pos, int tier,
+            net.minecraft.inventory.InventoryCrafting matrix, ItemStack expected) throws Exception {
+        EntityPlayerMP player = world.getMinecraftServer().getPlayerList().getPlayers().get(0);
+        net.minecraft.block.Block block = com.e2e.ae2expert.extended.TableRegistry.TERMINALS.get(tier - 1);
+        world.setBlockState(pos, block.getDefaultState());
+        com.e2e.ae2expert.extended.ContainerTableTerminal terminal =
+                com.e2e.ae2expert.extended.ContainerTableTerminal.open(player, pos);
+        java.lang.reflect.Method transfer = terminal.getClass().getDeclaredMethod(
+                "transferRecipe", int.class, java.util.List.class, ItemStack.class);
+        transfer.setAccessible(true);
+        int size = matrix.getWidth();
+        java.util.List<ItemStack> layout = new java.util.ArrayList<>();
+        for (int i = 0; i < size * size; i++) layout.add(matrix.getStackInSlot(i));
+        check((Boolean) transfer.invoke(terminal, size, layout, expected),
+                "Перенос сетки " + size + "×" + size + " в терминал");
+        int preview = size * size + 3;
+        check(ItemStack.areItemStacksEqual(expected, terminal.getSlot(preview).getStack()),
+                "Предпросмотр результата " + size + "×" + size);
+        check(!(Boolean) transfer.invoke(terminal, size, layout, new ItemStack(net.minecraft.init.Items.DIAMOND)),
+                "Перенос отклоняет подменённый результат " + size + "×" + size);
+        check(!terminal.getSlot(preview).canTakeStack(player)
+                        && terminal.slotClick(preview, 0, net.minecraft.inventory.ClickType.PICKUP, player).isEmpty(),
+                "Из предпросмотра нельзя забрать предмет " + size + "×" + size);
+        world.setBlockToAir(pos);
+    }
+
+    private boolean extendedVisualPlaced;
+    private static final BlockPos VISUAL_TERMINAL = new BlockPos(8, 101, 24);
+
+    private static void setupExtendedVisual(WorldServer world, EntityPlayerMP player) {
+        if (!com.e2e.ae2expert.extended.TableRegistry.enabled()) return;
+        for (int x = 3; x <= 16; x++) for (int z = 19; z <= 32; z++)
+            world.setBlockState(new BlockPos(x, 100, z), net.minecraft.init.Blocks.STONE.getDefaultState());
+        for (int tier = 0; tier < 4; tier++) {
+            world.setBlockState(VISUAL_TERMINAL.east(tier),
+                    com.e2e.ae2expert.extended.TableRegistry.TERMINALS.get(tier).getDefaultState());
+            world.setBlockState(VISUAL_TERMINAL.east(tier).north(2).up(),
+                    com.e2e.ae2expert.extended.TableRegistry.ASSEMBLERS.get(tier).getDefaultState());
+        }
+        net.minecraft.block.Block converter = MachineRegistry.RF_EU_CONVERTER;
+        world.setBlockState(VISUAL_TERMINAL.west(2), converter.getStateFromMeta(0));
+        world.setBlockState(VISUAL_TERMINAL.east(5), converter.getStateFromMeta(2));
+        int assemblerIndex = 0;
+        for (net.minecraft.block.Block assembler : com.e2e.ae2expert.assembler.AssemblerRegistry.BLOCKS.values()) {
+            world.setBlockState(VISUAL_TERMINAL.west(1).east(assemblerIndex++).north(3).up(2),
+                    assembler.getDefaultState());
+        }
+        BlockPos machineRow = VISUAL_TERMINAL.west(1).north(4).up(3);
+        int interfaceIndex = 0;
+        for (net.minecraft.block.Block block : com.e2e.ae2expert.interfacepkg.InterfaceRegistry.BLOCKS)
+            world.setBlockState(machineRow.east(interfaceIndex++), block.getDefaultState());
+        world.setBlockState(machineRow.west(), MachineRegistry.FLUIX_CHAMBER.getDefaultState());
+        world.setBlockState(machineRow.east(interfaceIndex),
+                com.e2e.ae2expert.crafting.CpuRegistry.RACK.getDefaultState());
+        for (int i = 0; i < 2; i++) {
+            String name = i == 0 ? "crafting_storage_128k" : "crafting_coprocessor_9";
+            net.minecraft.block.Block block = net.minecraftforge.fml.common.registry.ForgeRegistries.BLOCKS.getValue(
+                    new net.minecraft.util.ResourceLocation("ae2expert", name));
+            if (block != null) world.setBlockState(VISUAL_TERMINAL.east(1 + i).south(), block.getDefaultState());
+        }
+        world.setWorldTime(6000);
+        player.connection.setPlayerLocation(10, 101, 29, 180, 9);
+    }
+
+    private void captureExtendedVisual(int tick) {
+        if (!com.e2e.ae2expert.extended.TableRegistry.enabled() || tick < 240 || tick > 400) return;
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.player == null) return;
+        int elapsed = tick - 240;
+        if (elapsed == 0) {
+            mc.displayGuiScreen(null);
+            return;
+        }
+        if (elapsed == 20 || elapsed % 30 == 10 && elapsed >= 40 || elapsed == 160) {
+            String name = elapsed == 20 ? "models" : elapsed == 160 ? "processing"
+                    : "terminal-" + (elapsed - 40) / 30;
+            net.minecraft.util.ScreenShotHelper.saveScreenshot(mc.gameDir, "extended-" + name + ".png",
+                    mc.displayWidth, mc.displayHeight, mc.getFramebuffer());
+            System.out.println("[AE2ExpertVisual] EXTENDED_SCREEN " + name);
+        }
+        if (elapsed >= 30 && elapsed <= 120 && elapsed % 30 == 0) {
+            int tier = elapsed / 30 - 1;
+            com.e2e.ae2expert.extended.ContainerTableTerminal terminal =
+                    com.e2e.ae2expert.extended.ContainerTableTerminal.open(mc.player, VISUAL_TERMINAL.east(tier));
+            if (terminal != null) mc.displayGuiScreen(new com.e2e.ae2expert.client.GuiTableTerminal(terminal));
+        }
+        if (elapsed == 150 && mc.currentScreen instanceof com.e2e.ae2expert.client.GuiTableTerminal) {
+            com.e2e.ae2expert.client.GuiTableTerminal screen = (com.e2e.ae2expert.client.GuiTableTerminal) mc.currentScreen;
+            ((com.e2e.ae2expert.extended.ContainerTableTerminal) screen.inventorySlots).toggleClientMode();
+            screen.initGui();
+        }
+    }
+
     private static boolean channelWorld() {
         return Boolean.getBoolean("ae2expert.channelWorld")
                 || new java.io.File(".ae2expert-channel-world").isFile();
     }
 
     @SubscribeEvent public void client(TickEvent.ClientTickEvent event) throws Exception {
+        if (event.phase == TickEvent.Phase.END && finished) captureExtendedVisual(visualTicks);
         if (event.phase == TickEvent.Phase.END && started && !channelWorld()
                 && new java.io.File(Minecraft.getMinecraft().gameDir, ".ae2expert-runtime-check").isFile()
                 && Minecraft.getMinecraft().player != null
@@ -87,7 +254,17 @@ public final class RuntimeIntegrationChecks {
     }
 
     @SubscribeEvent public void tick(TickEvent.WorldTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || event.world.isRemote || event.world.provider.getDimension() != 0 || finished) return;
+        if (event.phase != TickEvent.Phase.END || event.world.isRemote || event.world.provider.getDimension() != 0) return;
+        if (finished) {
+            if (visualTicks >= 220 && !extendedVisualPlaced && !channelWorld()) {
+                WorldServer world = (WorldServer) event.world;
+                if (!world.getMinecraftServer().getPlayerList().getPlayers().isEmpty()) {
+                    extendedVisualPlaced = true;
+                    setupExtendedVisual(world, world.getMinecraftServer().getPlayerList().getPlayers().get(0));
+                }
+            }
+            return;
+        }
         if (!new java.io.File(event.world.getSaveHandler().getWorldDirectory().getParentFile().getParentFile(), ".ae2expert-runtime-check").isFile()) return;
         if (event.world.getMinecraftServer().getPlayerList().getPlayers().isEmpty()) return;
         WorldServer world = (WorldServer) event.world;
@@ -100,6 +277,7 @@ public final class RuntimeIntegrationChecks {
             if (ticks++ == 0) {
                 System.out.println("[AE2ExpertRuntime] START");
                 basicChecks();
+                checkExtendedCrafting(world);
                 RuntimeIntegrationChecksCpu.setup(world,player);
                 RuntimeIntegrationChecksWireless.setup(world,player);
                 for(int x=15;x<=48;x++)for(int z=15;z<=38;z++)for(int y=90;y<=91;y++)world.setBlockToAir(new BlockPos(x,y,z));
@@ -161,7 +339,7 @@ public final class RuntimeIntegrationChecks {
 
     private void basicChecks() {
         long items = ForgeRegistries.ITEMS.getKeys().stream().filter(key -> key.getNamespace().equals("ae2expert")).count();
-        check(items == 94, "Зарегистрирован 94 предмета и блока: " + items);
+        check(items == (com.e2e.ae2expert.extended.TableRegistry.enabled() ? 103 : 94), "Количество зарегистрированных предметов и блоков: " + items);
         int recipes = 0;
         for (IRecipe recipe : ForgeRegistries.RECIPES.getValuesCollection()) {
             if (recipe.getRegistryName() == null || !recipe.getRegistryName().getNamespace().equals("ae2expert")) continue;
@@ -172,7 +350,7 @@ public final class RuntimeIntegrationChecks {
                     check(ingredient.getMatchingStacks().length > 0, "Ингредиент " + recipe.getRegistryName());
             }
         }
-        check(recipes == 94, "Загружен 94 рецепта: " + recipes);
+        check(recipes == (com.e2e.ae2expert.extended.TableRegistry.enabled() ? 166 : 158), "Количество загруженных рецептов: " + recipes);
         IStorageChannel<IAEItemStack> itemChannel = AEApi.instance().storage().getStorageChannel(IItemStorageChannel.class);
         ItemStack itemCell = new ItemStack(ModItems.itemCells.get(CellTier.M512));
         ICellInventoryHandler<IAEItemStack> inventory = AEApi.instance().registries().cell().getCellInventory(itemCell, null, itemChannel);

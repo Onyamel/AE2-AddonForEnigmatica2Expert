@@ -29,6 +29,7 @@ import io.netty.buffer.ByteBuf;
 public class PartExpertCable extends PartDenseCableSmart implements IChannelCapacity {
 
     private final int capacity;
+    private final int paint;
     private final int[] actualClientChannels = new int[6];
 
     public PartExpertCable(ItemStack is) {
@@ -38,6 +39,8 @@ public class PartExpertCable extends PartDenseCableSmart implements IChannelCapa
             resolved = ((ItemExpertCable) is.getItem()).getChannelCapacity();
         }
         this.capacity = resolved;
+        this.paint = is.getItem() instanceof ItemExpertCable
+                ? ((ItemExpertCable) is.getItem()).paintColor(is.getMetadata(), -1) : -1;
         // Цвет обозначает тир, а не изолированную цветовую сеть AE2.
         this.getProxy().setColor(AEColor.TRANSPARENT);
     }
@@ -54,6 +57,8 @@ public class PartExpertCable extends PartDenseCableSmart implements IChannelCapa
     public int getChannelCapacity() {
         return this.capacity;
     }
+
+    public int getPaint() { return paint; }
 
     public int getDisplayedUsedChannels() {
         IGridNode node = getGridNode();

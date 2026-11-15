@@ -127,7 +127,7 @@ tile.ae2expert.crafting_storage_524288k.name=Хранилище создания
 tile.ae2expert.crafting_coprocessor_9.name=Блок обработки создания ×9
 tile.ae2expert.crafting_coprocessor_81.name=Блок обработки создания ×81
 tile.ae2expert.crafting_coprocessor_729.name=Блок обработки создания ×729
-tile.ae2expert.crafting_cpu_rack.name=Стойка CPU создания
+tile.ae2expert.crafting_cpu_rack.name=Объединитель процессоров
 ae2expert.cpu.memory=Память: %s КиБ
 ae2expert.cpu.processors=Сопроцессоры: %s
 ae2expert.cpu.busy=CPU занят: слоты закрыты
@@ -135,7 +135,7 @@ ae2expert.cpu.busy=CPU занят: слоты закрыты
 tile.ae2expert.wireless_hub.name=Центр беспроводных связей
 item.ae2expert.wireless_linker.name=Связыватель МЭ-сети
 tile.ae2expert.wireless_relay_32.name=Беспроводной передатчик на 32 канала
-tile.ae2expert.wireless_relay_64.name=Беспроводной передатчик на 64 каналов
+tile.ae2expert.wireless_relay_64.name=Беспроводной передатчик на 64 канала
 tile.ae2expert.wireless_relay_128.name=Беспроводной передатчик на 128 каналов
 tile.ae2expert.wireless_relay_256.name=Беспроводной передатчик на 256 каналов
 ae2expert.radio.selected=Центр выбран
@@ -151,3 +151,44 @@ ae2expert.radio.remove=Отключить
 ae2expert.radio.confirm_remove=Подтвердить отключение
 ae2expert.radio.online=Связан
 ae2expert.radio.offline=Не в сети
+
+ae2expert.pattern.quantity=Количество в шаблоне (1–64)
+
+tile.ae2expert.table_terminal_basic.name=Базовый терминал экстремального крафта
+tile.ae2expert.table_assembler_basic.name=Базовый экстремальный сборщик ×8
+
+tile.ae2expert.table_terminal_advanced.name=Продвинутый терминал экстремального крафта
+tile.ae2expert.table_assembler_advanced.name=Продвинутый экстремальный сборщик ×8
+
+tile.ae2expert.table_terminal_elite.name=Элитный терминал экстремального крафта
+tile.ae2expert.table_assembler_elite.name=Элитный экстремальный сборщик ×8
+
+tile.ae2expert.table_terminal_ultimate.name=Предельный терминал экстремального крафта
+tile.ae2expert.table_assembler_ultimate.name=Предельный экстремальный сборщик ×8
+item.ae2expert.table_pattern.name=Шаблон экстремального крафта
+gui.ae2expert.table_encode=Записать
+gui.ae2expert.table_clear=Очистить
+gui.ae2expert.table_title=Шаблон %s×%s
+gui.ae2expert.table_load=Взять
+
+gui.ae2expert.table_crafting=Создание
+gui.ae2expert.table_processing=Обработка
+
+gui.ae2expert.table_inputs=Вход
+gui.ae2expert.table_outputs=Выход
+
+gui.ae2expert.table_tier_required=Нужен терминал %s×%s или старше
+
+gui.ae2expert.table_result=Выход
+
+gui.ae2expert.table_written=Шаблон
+
+gui.ae2expert.table_pattern_output=Выход: %s × %s
+
+gui.ae2expert.table_pattern_input=Вход: %s × %s
+
+commands.ae2expert.visit.single=Команда доступна, когда в одиночном мире находится один игрок.
+
+commands.ae2expert.visit.running=Событие уже идёт.
+
+commands.ae2expert.visit.location=Рядом нет безопасного места. Переместись на открытый участок и повтори команду.

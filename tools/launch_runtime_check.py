@@ -4,6 +4,7 @@ parser=argparse.ArgumentParser(description='Отдельный игровой п
 parser.add_argument('--prism',required=True,help='Папка данных Prism с libraries, assets и meta')
 parser.add_argument('--instance',required=True,help='Папка инстанса E2E или его minecraft')
 parser.add_argument('--java-home',default=os.environ.get('JAVA_HOME'),help='JDK 8 для запуска Forge/передачи управления Cleanroom')
+parser.add_argument('--run-dir', type=Path, help='Отдельный каталог запуска')
 parser.add_argument('--memory',default='7G',help='Память для тестового экземпляра')
 args_cli=parser.parse_args()
 ROOT=Path(__file__).resolve().parents[1]
@@ -15,7 +16,7 @@ if not args_cli.java_home:raise SystemExit('Укажите --java-home или JA
 java=Path(args_cli.java_home)/'bin/java.exe'
 if not java.is_file():raise SystemExit('Не найден java.exe: '+str(java))
 if not re.fullmatch(r'[1-9][0-9]*[MG]',args_cli.memory):raise SystemExit('Память задаётся как 7G или 4096M')
-RUN=ROOT/'run-release'
+RUN=args_cli.run_dir.resolve() if args_cli.run_dir else ROOT/'run-release'
 RUN.mkdir(exist_ok=True)
 (RUN/'.ae2expert-runtime-check').write_text('Отдельный профиль для интеграционных проверок',encoding='utf-8')
 for name in ['mods','config','scripts','resources','structures']:
@@ -27,6 +28,10 @@ if lan_config.is_file():
     old = b'B:"LAN Server Properties"=true'
     if old in config:
         lan_config.write_bytes(config.replace(old, b'B:"LAN Server Properties"=false'))
+splash = RUN / 'config' / 'splash.properties'
+if splash.is_file():
+ config = splash.read_bytes()
+ splash.write_bytes(config.replace(b'enabled=true', b'enabled=false'))
 version=re.search(r"version\s*=\s*'([^']+)'",(ROOT/'build.gradle').read_text()).group(1)
 retired=RUN/'previous-addon'
 retired.mkdir(exist_ok=True)
@@ -63,7 +68,7 @@ for rel in ['net.minecraft/1.12.2','org.lwjgl/2.9.4-nightly-20150209','net.minec
     for entry in z.namelist():
      if entry.lower().endswith('.dll'): (natives/Path(entry).name).write_bytes(z.read(entry))
 args=[str(java),'-Xms1G','-Xmx'+args_cli.memory,'-Dfile.encoding=UTF-8','-Dae2expert.runtimecheck='+str(RUN),'-Djava.library.path='+str(natives),'-cp',';'.join(cp),'net.minecraft.launchwrapper.Launch','--tweakClass','net.minecraftforge.fml.common.launcher.FMLTweaker','--username','AE2ExpertTest','--uuid','8750d48ce758389aa097321242bf6c29','--accessToken','0','--userType','mojang','--version','1.12.2','--versionType','release','--gameDir',str(RUN),'--assetsDir',str(BASE/'assets'),'--assetIndex','1.12','--width','1920','--height','1080']
-(ROOT/'tools/runtime-command.json').write_text(json.dumps(args,ensure_ascii=False,indent=2),encoding='utf-8')
+(RUN/'runtime-command.json').write_text(json.dumps(args,ensure_ascii=False,indent=2),encoding='utf-8')
 with (RUN/'launch-output.log').open('wb') as out:
  p=subprocess.Popen(args,cwd=RUN,stdout=out,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
 (RUN/'process.json').write_text(json.dumps({'pid':p.pid}),encoding='utf-8')

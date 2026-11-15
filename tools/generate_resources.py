@@ -14,7 +14,7 @@ def item(name, data=None, empty=False):
 def material(meta): return item('appliedenergistics2:material',meta)
 def ore(name): return {'type':'forge:ore_dict','ore':name}
 def recipe(name, rows, keys, optional=False):
-    value={'type':'forge:ore_shaped','group':'ae2expert','pattern':rows,'key':keys,'result':item('ae2expert:'+name)}
+    value={'type':'forge:ore_shaped','group':'ae2expert','pattern':rows,'key':keys,'result':item('ae2expert:'+name,0 if name in ('cable_32','cable_64','cable_128','cable_256') else None)}
     if optional: value['conditions']=[{'type':'forge:mod_loaded','modid':'extracells'}]
     write(ASSETS/'recipes'/f'{name}.json',value)
 tiers=['16k','32k','64k','128k','256k','512k','1m','2m','4m','8m','16m','32m','64m','128m','256m','512m']
@@ -28,7 +28,7 @@ for prefix,component in [('cell_',material(37)),('fluid_cell_',material(56)),('g
             recipe(prefix+tier,(['GPG','CBC','RHR'] if n<4 else ['G G','CBC','RHR']),{**({'P':ore('plateGold')} if n<4 else {}),'G':item('appliedenergistics2:quartz_glass'),'C':item('ae2expert:'+prefix+tiers[n-1],empty=True),'B':material(23 if n<4 else 24),'R':material(8),'H':casing},optional)
 recipe('cell_infinite',['CSC','SQS','CSC'],{'C':item('ae2expert:cell_512m',empty=True),'S':material(47),'Q':item('appliedenergistics2:controller')})
 for n,channels in enumerate([32,64,128,256]):
-    prev=item('appliedenergistics2:part',76) if n==0 else item('ae2expert:cable_'+str(channels//2))
+    prev=item('appliedenergistics2:part',76) if n==0 else item('ae2expert:cable_'+str(channels//2),32767)
     recipe('cable_'+str(channels),['PRP','CBC','PRP'],{'P':ore('plateIron' if n<2 else 'plateGold'),'R':ore('dustRedstone'),'C':prev,'B':material(24)})
 for kind,meta in [('import',240),('export',260)]:
     for n,speed in enumerate([4,8,16]):
@@ -43,11 +43,11 @@ for n,slots in enumerate([18,27,36,48,64]):
 recipe('fluix_chamber',['GPG','PMP','GCG'],{'G':item('appliedenergistics2:quartz_glass'),'P':ore('plateIron'),'M':item('appliedenergistics2:charger'),'C':material(24)})
 recipe('rf_eu_converter',['PCP','RAR','PCP'],{'P':ore('plateCopper'),'C':item('ic2:casing',3),'R':material(24),'A':item('appliedenergistics2:energy_acceptor')})
 write(ASSETS/'recipes/_factories.json',{'ingredients':{'empty_cell':'com.e2e.ae2expert.recipe.EmptyCellIngredientFactory'}})
-# Наследование исходной геометрии AE2 сохраняет внутреннюю раму сборщика.
+# Текстуры ускоренных сборщиков подготовлены из отдельных файлов для каждого тира.
 for speed in [2,4,8,16,32]:
     name='assembler_'+str(speed)
-    write(ASSETS/'models/block'/f'{name}.json',{'parent':'appliedenergistics2:block/molecular_assembler','textures':{'particle':'ae2expert:blocks/'+name,'outside':'ae2expert:blocks/'+name}})
-    write(ASSETS/'blockstates'/f'{name}.json',{'forge_marker':1,'defaults':{'model':'ae2expert:'+name},'variants':{'powered':{'false':{},'true':{'submodel':'appliedenergistics2:molecular_assembler_lights'}}}})
+    write(ASSETS/'models/block'/f'{name}.json',{'parent':'block/cube_all','textures':{'all':'ae2expert:blocks/'+name}})
+    write(ASSETS/'blockstates'/f'{name}.json',{'variants':{'powered='+state:{'model':'ae2expert:'+name} for state in ['false','true']}})
 for slots in [18,27,36,48,64]:
     write(ASSETS/'blockstates'/f'interface_{slots}.json',{'variants':{'normal':{'model':f'ae2expert:interface_{slots}'}}})
 for name in [f'assembler_{n}' for n in [2,4,8,16,32]]+[f'interface_{n}' for n in [18,27,36,48,64]]+['fluix_chamber','rf_eu_converter']:

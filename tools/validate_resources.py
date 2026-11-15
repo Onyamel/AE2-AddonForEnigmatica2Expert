@@ -36,6 +36,6 @@ for path in (root/'lang').glob('*.lang'):
     langs[path.stem]=set(keys)
 if langs.get('ru_ru')!=langs.get('en_us'): errors.append('Наборы ключей RU и EN различаются')
 recipes=[p for p in (root/'recipes').glob('*.json') if not p.name.startswith('_')]
-if len(recipes)!=94: errors.append('Ожидалось 94 рецепта, найдено '+str(len(recipes)))
+if len(recipes)!=166: errors.append('Ожидалось 166 рецептов, найдено '+str(len(recipes)))
 if errors: raise SystemExit('\n'.join(errors))
 print(f'Проверено JSON: {count}; рецептов: {len(recipes)}; ключей в каждой локализации: {len(langs["ru_ru"])}. Ошибок нет.')
